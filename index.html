@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CUNightRide Surge — Financial Model Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0.12.0/dist/chartjs-chart-sankey.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -252,6 +253,7 @@ input[type="range"]::-moz-range-thumb {
   margin-bottom: 10px;
 }
 .chart-wrap { position: relative; height: 210px; }
+.sankey-wrap { position: relative; height: 300px; }
 
 /* ── SENSITIVITY TABLE ───────────────────── */
 .sens-section {
@@ -465,6 +467,45 @@ input[type="range"]::-moz-range-thumb {
             oninput="sr('r-m1-saas','n-m1-saas',25000,500000);go1()">
         </div>
       </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl">
+          <span class="inp-lbl-text">Surge per-swipe fee ($)</span>
+          <span class="inp-lbl-hint">per redeemed swipe → Surge</span>
+        </div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-sps" min="0" max="5.00" step="0.05" value="0.50"
+            oninput="rs('r-m1-sps','n-m1-sps',2);go1()">
+          <input type="number" id="n-m1-sps" class="numinput" value="0.50" step="0.05"
+            oninput="sr('r-m1-sps','n-m1-sps',0,5.00);go1()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl">
+          <span class="inp-lbl-text">CU per-swipe cut (%)</span>
+          <span class="inp-lbl-hint">% of swipe price → CU</span>
+        </div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-ccut" min="0" max="30" step="0.5" value="0"
+            oninput="rs('r-m1-ccut','n-m1-ccut',1);go1()">
+          <input type="number" id="n-m1-ccut" class="numinput" value="0.0" step="0.5"
+            oninput="sr('r-m1-ccut','n-m1-ccut',0,30);go1()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl">
+          <span class="inp-lbl-text">Uber/Lyft per-swipe cut (%)</span>
+          <span class="inp-lbl-hint">% of swipe price → Uber/Lyft</span>
+        </div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-ucut" min="0" max="30" step="0.5" value="0"
+            oninput="rs('r-m1-ucut','n-m1-ucut',1);go1()">
+          <input type="number" id="n-m1-ucut" class="numinput" value="0.0" step="0.5"
+            oninput="sr('r-m1-ucut','n-m1-ucut',0,30);go1()">
+        </div>
+      </div>
     </div><!-- /ride fulfillment -->
 
     <div class="inp-section">
@@ -563,17 +604,29 @@ input[type="range"]::-moz-range-thumb {
           <span class="pnl-ll">↳ Float (unused swipes)</span>
           <span class="pnl-lv pos" id="p-cu-float">—</span>
         </div>
+        <div class="pnl-line" id="row-cu-ccut" style="display:none">
+          <span class="pnl-ll">↳ CU per-swipe cut</span>
+          <span class="pnl-lv pos" id="p-cu-ccut">—</span>
+        </div>
         <div class="pnl-line">
           <span class="pnl-ll">Dedicated driver costs</span>
           <span class="pnl-lv" id="p-cu-ded">—</span>
         </div>
         <div class="pnl-line">
-          <span class="pnl-ll">Uber / Lyft costs</span>
+          <span class="pnl-ll">Uber / Lyft ride costs</span>
           <span class="pnl-lv" id="p-cu-uber">—</span>
+        </div>
+        <div class="pnl-line" id="row-cu-ucut" style="display:none">
+          <span class="pnl-ll">Uber/Lyft swipe cut</span>
+          <span class="pnl-lv" id="p-cu-ucut">—</span>
         </div>
         <div class="pnl-line">
           <span class="pnl-ll">SaaS fee paid to Surge</span>
           <span class="pnl-lv" id="p-cu-saas">—</span>
+        </div>
+        <div class="pnl-line">
+          <span class="pnl-ll">Surge per-swipe fees</span>
+          <span class="pnl-lv" id="p-cu-sps">—</span>
         </div>
         <div class="pnl-net">
           <span class="pnl-net-lbl">CU NET</span>
@@ -586,6 +639,10 @@ input[type="range"]::-moz-range-thumb {
         <div class="pnl-line">
           <span class="pnl-ll">SaaS license revenue</span>
           <span class="pnl-lv" id="p-sg-saas">—</span>
+        </div>
+        <div class="pnl-line">
+          <span class="pnl-ll">Per-swipe fee revenue</span>
+          <span class="pnl-lv pos" id="p-sg-sps">—</span>
         </div>
         <div class="pnl-line">
           <span class="pnl-ll">Gross before headcount</span>
@@ -622,6 +679,11 @@ input[type="range"]::-moz-range-thumb {
     <div class="chart-section">
       <div class="sec-title">Revenue · Costs · Net — Both Parties</div>
       <div class="chart-wrap"><canvas id="chart-m1"></canvas></div>
+    </div>
+
+    <div class="chart-section">
+      <div class="sec-title">Money Flow — Sankey</div>
+      <div class="sankey-wrap"><canvas id="sankey-m1"></canvas></div>
     </div>
 
     <div class="sens-section">
@@ -851,6 +913,11 @@ input[type="range"]::-moz-range-thumb {
       <div class="chart-wrap"><canvas id="chart-m2"></canvas></div>
     </div>
 
+    <div class="chart-section">
+      <div class="sec-title">Revenue Flow — Sankey</div>
+      <div class="sankey-wrap"><canvas id="sankey-m2"></canvas></div>
+    </div>
+
     <div class="sens-section">
       <div class="sec-title">Sensitivity — Net Profit by Utilization Rate</div>
       <table class="sens-tbl">
@@ -926,8 +993,58 @@ function updUber() {
   $('uber-pct-lbl').textContent = `Uber/Lyft: ${(100 - d).toFixed(0)}%`;
 }
 
+// ─── SANKEY COLORS ────────────────────────────────────
+const NK = {
+  'Students':      '#4a6282',
+  'CU Revenue':    '#00c8b2',
+  'Float Revenue': '#00d48a',
+  'Ride Pool':     '#c05a20',
+  'Ded. Drivers':  '#b87030',
+  'Uber / Lyft':   '#c03828',
+  'CU Net':        '#00d48a',
+  'CU Deficit':    '#ff5870',
+  'CU Swipe Cut':  '#20b890',
+  'Surge':         '#5878d0',
+  'Dev #1':        '#7858b8',
+  'Dev #2':        '#6848a8',
+  'Sales / BD':    '#5838a0',
+  'Ops / CS':      '#483098',
+  'Admin':         '#382888',
+  'Surge Net':     '#00c47a',
+  'Funding Gap':   '#ff3860',
+  'Universities':  '#4a6282',
+  'Ride Margin':   '#20a888',
+  'Net Profit':    '#00d48a',
+};
+function nkc(name) { return NK[name] || '#8898b8'; }
+
+const SANKEY_OPTS = {
+  responsive: true,
+  maintainAspectRatio: false,
+  animation: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      backgroundColor: '#111820',
+      borderColor: '#253352',
+      borderWidth: 1,
+      titleColor: '#d8e6f8',
+      bodyColor: '#d8e6f8',
+      bodyFont: { family: 'JetBrains Mono', size: 11 },
+      callbacks: {
+        title: () => '',
+        label: c => {
+          const d = c.dataset.data[c.dataIndex];
+          return d ? ` ${d.from}  →  ${d.to}:  ${fmt(d.flow)}` : '';
+        }
+      }
+    }
+  }
+};
+
 // ─── MODEL 1 ──────────────────────────────────────────
 let ch1 = null;
+let sk1 = null;
 
 function go1() {
   const stu   = gv('n-m1-stu');
@@ -939,6 +1056,9 @@ function go1() {
   const ucost = gv('n-m1-ucost');
   const mult  = gv('n-m1-mult');
   const saas  = gv('n-m1-saas');
+  const sps   = gv('n-m1-sps');
+  const ccut  = gv('n-m1-ccut') / 100;
+  const ucut  = gv('n-m1-ucut') / 100;
   const d1    = gv('n-m1-d1');
   const d2    = gv('n-m1-d2');
   const sal   = gv('n-m1-sal');
@@ -961,15 +1081,20 @@ function go1() {
   const uberCostTot = uberRides * ucost;
   const totalRideCost = dedCostTot + uberCostTot;
 
+  // Per-swipe distributions (on redeemed swipes)
+  const surgeSwipeRev = redeemedSwipes * sps;           // Surge earns per swipe
+  const cuSwipeCut    = redeemedSwipes * ccut * pps;    // CU earns extra per swipe
+  const uberSwipeCut  = redeemedSwipes * ucut * pps;    // Uber/Lyft earn per swipe (cost to CU)
+
   // CU P&L
-  const cuRev     = totalSwipes * pps;
+  const cuRev     = totalSwipes * pps + cuSwipeCut;
   const floatRev  = floatSwipes * pps;
-  const cuCosts   = totalRideCost + saas;
+  const cuCosts   = totalRideCost + uberSwipeCut + saas + surgeSwipeRev;
   const cuNet     = cuRev - cuCosts;
 
   // Surge P&L
   const totalSal  = d1 + d2 + sal + ops + adm;
-  const sgRev     = saas;
+  const sgRev     = saas + surgeSwipeRev;
   const sgNet     = sgRev - totalSal;
 
   // Break-even utilization for CU:
@@ -991,16 +1116,22 @@ function go1() {
   // CU P&L rows
   setV('p-cu-rev',   fmt(cuRev));
   setV('p-cu-float', fmt(floatRev));
+  setV('p-cu-ccut',  fmt(cuSwipeCut));
+  $('row-cu-ccut').style.display = ccut > 0 ? '' : 'none';
   setV('p-cu-ded',   fmt(dedCostTot));
   setV('p-cu-uber',  fmt(uberCostTot));
+  setV('p-cu-ucut',  fmt(uberSwipeCut));
+  $('row-cu-ucut').style.display = ucut > 0 ? '' : 'none';
   setV('p-cu-saas',  fmt(saas));
+  setV('p-cu-sps',   fmt(surgeSwipeRev));
 
   const cuNetEl = $('m1-cu-net');
   cuNetEl.textContent = fmt(cuNet);
   cuNetEl.className = 'pnl-net-val ' + netCls(cuNet, cuRev);
 
   // Surge P&L rows
-  setV('p-sg-saas',   fmt(sgRev));
+  setV('p-sg-saas',   fmt(saas));
+  setV('p-sg-sps',    fmt(surgeSwipeRev));
   setV('p-sg-gross',  fmt(sgRev));
   setV('p-sg-d1',     fmt(d1));
   setV('p-sg-d2',     fmt(d2));
@@ -1025,8 +1156,9 @@ function go1() {
     pill(sgSt, `SURGE: ${sgNet >= 0 ? 'PROFITABLE' : 'LOSING'} (${fmt(sgNet)})`) +
     pill(overallCls, overallLbl);
 
-  // Chart
+  // Charts
   renderM1Chart(cuRev, cuCosts, cuNet, sgRev, totalSal, sgNet);
+  renderM1Sankey(cuRev, floatRev, cuSwipeCut, dedCostTot, uberCostTot + uberSwipeCut, saas, surgeSwipeRev, cuNet, d1, d2, sal, ops, adm, sgNet);
 
   // Sensitivity
   const curUtil = gv('n-m1-util') / 100;
@@ -1106,8 +1238,56 @@ function renderM1Chart(cuRev, cuCosts, cuNet, sgRev, sgCosts, sgNet) {
   }
 }
 
+function renderM1Sankey(cuRev, floatRev, cuSwipeCut, dedCostTot, uberTotal, saas, surgeSwipeRev, cuNet, d1, d2, sal, ops, adm, sgNet) {
+  const flows = [];
+  const cuDeficit = Math.max(0, -cuNet);
+  const cuNetPos  = Math.max(0, cuNet);
+  const sgDeficit = Math.max(0, -sgNet);
+  const sgNetPos  = Math.max(0, sgNet);
+  // Total student inflow is swipe revenue minus any extra CU cut already baked in
+  const studentFlow = Math.round(cuRev - cuSwipeCut);
+
+  flows.push({ from: 'Students',   to: 'CU Revenue', flow: Math.max(1, studentFlow) });
+  if (cuSwipeCut > 100) flows.push({ from: 'CU Swipe Cut', to: 'CU Revenue', flow: Math.round(cuSwipeCut) });
+  if (cuDeficit > 100)  flows.push({ from: 'CU Deficit',   to: 'CU Revenue', flow: Math.round(cuDeficit) });
+
+  flows.push({ from: 'CU Revenue', to: 'Float Revenue', flow: Math.max(1, Math.round(floatRev)) });
+  if (dedCostTot + uberTotal > 0)
+    flows.push({ from: 'CU Revenue', to: 'Ride Pool', flow: Math.round(dedCostTot + uberTotal) });
+  const surgeFlow = Math.round(saas + surgeSwipeRev);
+  if (surgeFlow > 0) flows.push({ from: 'CU Revenue', to: 'Surge', flow: surgeFlow });
+  if (cuNetPos > 100) flows.push({ from: 'CU Revenue', to: 'CU Net', flow: Math.round(cuNetPos) });
+
+  if (dedCostTot > 100) flows.push({ from: 'Ride Pool', to: 'Ded. Drivers', flow: Math.round(dedCostTot) });
+  if (uberTotal > 100)  flows.push({ from: 'Ride Pool', to: 'Uber / Lyft',  flow: Math.round(uberTotal) });
+
+  if (sgDeficit > 100) flows.push({ from: 'Funding Gap', to: 'Surge', flow: Math.round(sgDeficit) });
+
+  if (d1 > 0) flows.push({ from: 'Surge', to: 'Dev #1',     flow: Math.round(d1) });
+  if (d2 > 0) flows.push({ from: 'Surge', to: 'Dev #2',     flow: Math.round(d2) });
+  if (sal > 0) flows.push({ from: 'Surge', to: 'Sales / BD', flow: Math.round(sal) });
+  if (ops > 0) flows.push({ from: 'Surge', to: 'Ops / CS',   flow: Math.round(ops) });
+  if (adm > 0) flows.push({ from: 'Surge', to: 'Admin',      flow: Math.round(adm) });
+  if (sgNetPos > 100) flows.push({ from: 'Surge', to: 'Surge Net', flow: Math.round(sgNetPos) });
+
+  const dataset = {
+    data: flows,
+    colorFrom:  c => nkc(c.dataset.data[c.dataIndex]?.from),
+    colorTo:    c => nkc(c.dataset.data[c.dataIndex]?.to),
+    colorMode:  'gradient',
+    borderWidth: 0,
+    color:       '#8898b8',
+    font:        { family: 'JetBrains Mono', size: 10 },
+    size:        'min',
+  };
+
+  if (sk1) { sk1.destroy(); sk1 = null; }
+  sk1 = new Chart($('sankey-m1').getContext('2d'), { type: 'sankey', data: { datasets: [dataset] }, options: SANKEY_OPTS });
+}
+
 // ─── MODEL 2 ──────────────────────────────────────────
 let ch2 = null;
+let sk2 = null;
 
 function go2() {
   const unis  = gv('n-m2-unis');
@@ -1170,8 +1350,9 @@ function go2() {
     pill('g', `PROFITABLE AT ${beSchools} ${beSchools === 1 ? 'SCHOOL' : 'SCHOOLS'}`) +
     pill(netProfit > 0 ? 'g' : 'r', `${(marginPct*100).toFixed(1)}% NET MARGIN`);
 
-  // Chart
+  // Charts
   renderM2Chart(avgS, rideRevPerU, totalSal);
+  renderM2Sankey(saasRev, rideRev, d1, d2, sal, ops, adm, netProfit);
 
   // Sensitivity
   const curU = gv('n-m2-util') / 100;
@@ -1274,6 +1455,37 @@ function renderM2Chart(saasPerUni, ridePerUni, totalSal) {
   }
 }
 
+function renderM2Sankey(saasRev, rideRev, d1, d2, sal, ops, adm, netProfit) {
+  const flows = [];
+  const deficit = Math.max(0, -netProfit);
+  const netPos  = Math.max(0, netProfit);
+
+  if (saasRev > 100)  flows.push({ from: 'Universities', to: 'Surge', flow: Math.round(saasRev) });
+  if (rideRev > 100)  flows.push({ from: 'Ride Margin',  to: 'Surge', flow: Math.round(rideRev) });
+  if (deficit > 100)  flows.push({ from: 'Funding Gap',  to: 'Surge', flow: Math.round(deficit) });
+
+  if (d1 > 0)  flows.push({ from: 'Surge', to: 'Dev #1',     flow: Math.round(d1) });
+  if (d2 > 0)  flows.push({ from: 'Surge', to: 'Dev #2',     flow: Math.round(d2) });
+  if (sal > 0) flows.push({ from: 'Surge', to: 'Sales / BD', flow: Math.round(sal) });
+  if (ops > 0) flows.push({ from: 'Surge', to: 'Ops / CS',   flow: Math.round(ops) });
+  if (adm > 0) flows.push({ from: 'Surge', to: 'Admin',      flow: Math.round(adm) });
+  if (netPos > 100) flows.push({ from: 'Surge', to: 'Net Profit', flow: Math.round(netPos) });
+
+  const dataset = {
+    data: flows,
+    colorFrom:  c => nkc(c.dataset.data[c.dataIndex]?.from),
+    colorTo:    c => nkc(c.dataset.data[c.dataIndex]?.to),
+    colorMode:  'gradient',
+    borderWidth: 0,
+    color:       '#8898b8',
+    font:        { family: 'JetBrains Mono', size: 10 },
+    size:        'min',
+  };
+
+  if (sk2) { sk2.destroy(); sk2 = null; }
+  sk2 = new Chart($('sankey-m2').getContext('2d'), { type: 'sankey', data: { datasets: [dataset] }, options: SANKEY_OPTS });
+}
+
 // ─── PILL HELPER ──────────────────────────────────────
 function pill(cls, txt) {
   return `<div class="pill ${cls}"><div class="pill-dot"></div>${txt}</div>`;
@@ -1297,6 +1509,9 @@ const DEFAULTS = {
   'r-m1-ucost': 13,  'n-m1-ucost': 13.00,
   'r-m1-mult': 1.5,  'n-m1-mult': 1.5,
   'r-m1-saas': 150000, 'n-m1-saas': 150000,
+  'r-m1-sps': 0.50,   'n-m1-sps': 0.50,
+  'r-m1-ccut': 0,     'n-m1-ccut': 0.0,
+  'r-m1-ucut': 0,     'n-m1-ucut': 0.0,
   'r-m1-d1': 120000, 'n-m1-d1': 120000,
   'r-m1-d2': 60000,  'n-m1-d2': 60000,
   'r-m1-sal': 80000, 'n-m1-sal': 80000,
