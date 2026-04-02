@@ -409,6 +409,59 @@ input[type="range"]::-moz-range-thumb {
     </div><!-- /swipe plan -->
 
     <div class="inp-section">
+      <div class="inp-section-label">Booster Pack</div>
+
+      <div class="inp-row">
+        <div class="inp-lbl">
+          <span class="inp-lbl-text">Booster adoption rate (%)</span>
+          <span class="inp-lbl-hint">% of plan buyers</span>
+        </div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-brate" min="0" max="80" step="1" value="25"
+            oninput="rs('r-m1-brate','n-m1-brate',0);go1()">
+          <input type="number" id="n-m1-brate" class="numinput" value="25"
+            oninput="sr('r-m1-brate','n-m1-brate',0,80);go1()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Booster pack size (swipes)</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-bspp" min="5" max="30" step="1" value="10"
+            oninput="rs('r-m1-bspp','n-m1-bspp',0);go1()">
+          <input type="number" id="n-m1-bspp" class="numinput" value="10"
+            oninput="sr('r-m1-bspp','n-m1-bspp',5,30);go1()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl">
+          <span class="inp-lbl-text">Booster price / swipe ($)</span>
+          <span class="inp-lbl-hint">premium over base plan</span>
+        </div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-bpps" min="5" max="20" step="0.25" value="9.5"
+            oninput="rs('r-m1-bpps','n-m1-bpps',2);go1()">
+          <input type="number" id="n-m1-bpps" class="numinput" value="9.50" step="0.25"
+            oninput="sr('r-m1-bpps','n-m1-bpps',5,20);go1()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl">
+          <span class="inp-lbl-text">Booster utilization (%)</span>
+          <span class="inp-lbl-hint">heavy users redeem more</span>
+        </div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-butil" min="1" max="100" step="1" value="80"
+            oninput="rs('r-m1-butil','n-m1-butil',0);go1()">
+          <input type="number" id="n-m1-butil" class="numinput" value="80" min="1" max="100"
+            oninput="sr('r-m1-butil','n-m1-butil',1,100);go1()">
+        </div>
+      </div>
+    </div><!-- /booster pack -->
+
+    <div class="inp-section">
       <div class="inp-section-label">Ride Fulfillment</div>
 
       <div class="inp-row">
@@ -455,6 +508,32 @@ input[type="range"]::-moz-range-thumb {
             oninput="rs('r-m1-mult','n-m1-mult',1);go1()">
           <input type="number" id="n-m1-mult" class="numinput" value="1.5" step="0.1"
             oninput="sr('r-m1-mult','n-m1-mult',1,3);go1()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl">
+          <span class="inp-lbl-text">Outer-zone ride fraction (%)</span>
+          <span class="inp-lbl-hint">% of rides to far zones</span>
+        </div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-zfrac" min="0" max="80" step="1" value="20"
+            oninput="rs('r-m1-zfrac','n-m1-zfrac',0);go1()">
+          <input type="number" id="n-m1-zfrac" class="numinput" value="20"
+            oninput="sr('r-m1-zfrac','n-m1-zfrac',0,80);go1()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl">
+          <span class="inp-lbl-text">Outer-zone cost multiplier</span>
+          <span class="inp-lbl-hint">~$11 vs $8 = 1.375×</span>
+        </div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-zmult" min="1" max="2.5" step="0.05" value="1.4"
+            oninput="rs('r-m1-zmult','n-m1-zmult',2);go1()">
+          <input type="number" id="n-m1-zmult" class="numinput" value="1.40" step="0.05"
+            oninput="sr('r-m1-zmult','n-m1-zmult',1,2.5);go1()">
         </div>
       </div>
 
@@ -590,6 +669,16 @@ input[type="range"]::-moz-range-thumb {
         <div class="mcard-val" id="m1-be-util">—</div>
         <div class="mcard-sub">max utilization before loss</div>
       </div>
+      <div class="mcard">
+        <div class="mcard-lbl">Booster Revenue</div>
+        <div class="mcard-val pos" id="m1-boost-rev">—</div>
+        <div class="mcard-sub" id="m1-boost-sub">— booster buyers</div>
+      </div>
+      <div class="mcard">
+        <div class="mcard-lbl">Booster Gross Margin</div>
+        <div class="mcard-val" id="m1-boost-margin">—</div>
+        <div class="mcard-sub">booster rev − ride costs</div>
+      </div>
     </div>
 
     <div class="pnl-grid">
@@ -603,6 +692,14 @@ input[type="range"]::-moz-range-thumb {
         <div class="pnl-line">
           <span class="pnl-ll">↳ Float (unused swipes)</span>
           <span class="pnl-lv pos" id="p-cu-float">—</span>
+        </div>
+        <div class="pnl-line">
+          <span class="pnl-ll">Booster pack revenue</span>
+          <span class="pnl-lv pos" id="p-cu-boost-rev">—</span>
+        </div>
+        <div class="pnl-line">
+          <span class="pnl-ll">↳ Booster ride costs</span>
+          <span class="pnl-lv" id="p-cu-boost-cost">—</span>
         </div>
         <div class="pnl-line" id="row-cu-ccut" style="display:none">
           <span class="pnl-ll">↳ CU per-swipe cut</span>
@@ -1001,6 +1098,7 @@ const NK = {
   'Ride Pool':     '#c05a20',
   'Ded. Drivers':  '#b87030',
   'Uber / Lyft':   '#c03828',
+  'Booster Rides': '#d07840',
   'CU Net':        '#00d48a',
   'CU Deficit':    '#ff5870',
   'CU Swipe Cut':  '#20b890',
@@ -1055,6 +1153,8 @@ function go1() {
   const dcost = gv('n-m1-dcost');
   const ucost = gv('n-m1-ucost');
   const mult  = gv('n-m1-mult');
+  const zfrac = gv('n-m1-zfrac') / 100;
+  const zmult = gv('n-m1-zmult');
   const saas  = gv('n-m1-saas');
   const sps   = gv('n-m1-sps');
   const ccut  = gv('n-m1-ccut') / 100;
@@ -1065,31 +1165,46 @@ function go1() {
   const ops   = gv('n-m1-ops');
   const adm   = gv('n-m1-adm');
 
+  // Booster inputs
+  const brate = gv('n-m1-brate') / 100;
+  const bspp  = gv('n-m1-bspp');
+  const bpps  = gv('n-m1-bpps');
+  const butil = gv('n-m1-butil') / 100;
+
   const totalSwipes    = stu * spp;
   const redeemedSwipes = totalSwipes * util;
   const floatSwipes    = totalSwipes * (1 - util);
 
+  // Zone-adjusted blended cost: inner-zone rides at base cost, outer-zone rides at cost * zmult
+  const zoneAdj = (1 - zfrac) + zfrac * zmult;
+
   // Dedicated rides use 1 swipe; Uber/Lyft use `mult` swipes
-  // swipesUsed = dedRides*1 + uberRides*mult
-  // dedRides = ded * totalRides, uberRides = (1-ded)*totalRides
   const swipeFactor = ded + (1 - ded) * mult;
   const totalRides  = redeemedSwipes / (swipeFactor || 1);
   const dedRides    = totalRides * ded;
   const uberRides   = totalRides * (1 - ded);
 
-  const dedCostTot  = dedRides * dcost;
-  const uberCostTot = uberRides * ucost;
+  const dedCostTot  = dedRides  * dcost * zoneAdj;
+  const uberCostTot = uberRides * ucost * zoneAdj;
   const totalRideCost = dedCostTot + uberCostTot;
 
   // Per-swipe distributions (on redeemed swipes)
-  const surgeSwipeRev = redeemedSwipes * sps;           // Surge earns per swipe
-  const cuSwipeCut    = redeemedSwipes * ccut * pps;    // CU earns extra per swipe
-  const uberSwipeCut  = redeemedSwipes * ucut * pps;    // Uber/Lyft earn per swipe (cost to CU)
+  const surgeSwipeRev = redeemedSwipes * sps;
+  const cuSwipeCut    = redeemedSwipes * ccut * pps;
+  const uberSwipeCut  = redeemedSwipes * ucut * pps;
 
-  // CU P&L
-  const cuRev     = totalSwipes * pps + cuSwipeCut;
+  // Booster P&L
+  const boostBuyers    = stu * brate;
+  const boostRevTotal  = boostBuyers * bspp * bpps;
+  const boostRides     = boostBuyers * bspp * butil;
+  const boostBlended   = ded * dcost + (1 - ded) * ucost;
+  const boostRideCost  = boostRides * boostBlended * zoneAdj;
+  const boostMargin    = boostRevTotal - boostRideCost;
+
+  // CU P&L (base plan + booster)
+  const cuRev     = totalSwipes * pps + cuSwipeCut + boostRevTotal;
   const floatRev  = floatSwipes * pps;
-  const cuCosts   = totalRideCost + uberSwipeCut + saas + surgeSwipeRev;
+  const cuCosts   = totalRideCost + boostRideCost + uberSwipeCut + saas + surgeSwipeRev;
   const cuNet     = cuRev - cuCosts;
 
   // Surge P&L
@@ -1097,25 +1212,34 @@ function go1() {
   const sgRev     = saas + surgeSwipeRev;
   const sgNet     = sgRev - totalSal;
 
-  // Break-even utilization for CU:
-  // cuRev - (totalSwipes * u / swipeFactor) * blendedCostPerRide - saas = 0
-  // blendedCostPerRide is constant w.r.t. u
+  // Break-even utilization for CU (base plan portion only, booster is additive)
   const blended   = ded * dcost + (1 - ded) * ucost;
-  const beUtil    = (cuRev - saas) * swipeFactor / (totalSwipes * (blended || 1));
+  const blendedZ  = blended * zoneAdj;
+  const basePlanRev = totalSwipes * pps + cuSwipeCut;
+  const beUtil    = (basePlanRev + boostMargin - saas) * swipeFactor / (totalSwipes * (blendedZ || 1));
 
   // ── DOM updates ──────────────────────────
   setV('m1-cu-rev',   fmt(cuRev));
   setV('m1-float',    fmt(floatRev));
-  setV('m1-ridecost', fmt(totalRideCost));
-  setV('m1-rides-sub', `${fmtN(Math.round(totalRides))} rides fulfilled`);
+  setV('m1-ridecost', fmt(totalRideCost + boostRideCost));
+  setV('m1-rides-sub', `${fmtN(Math.round(totalRides + boostRides))} rides fulfilled`);
 
   const beEl = $('m1-be-util');
   beEl.textContent = beUtil > 1 ? '>100%' : beUtil < 0 ? 'N/A' : fmtPct(beUtil);
   beEl.className = 'mcard-val ' + (beUtil > 0.90 ? 'pos' : beUtil > 0.65 ? 'warn' : 'neg');
 
+  // Booster metric cards
+  setV('m1-boost-rev', fmt(boostRevTotal));
+  setV('m1-boost-sub', `${fmtN(Math.round(boostBuyers))} booster buyers`);
+  const bmEl = $('m1-boost-margin');
+  bmEl.textContent = fmt(boostMargin);
+  bmEl.className = 'mcard-val ' + (boostMargin > 0 ? 'pos' : 'neg');
+
   // CU P&L rows
-  setV('p-cu-rev',   fmt(cuRev));
-  setV('p-cu-float', fmt(floatRev));
+  setV('p-cu-rev',        fmt(totalSwipes * pps + cuSwipeCut));
+  setV('p-cu-float',      fmt(floatRev));
+  setV('p-cu-boost-rev',  fmt(boostRevTotal));
+  setV('p-cu-boost-cost', fmt(boostRideCost));
   setV('p-cu-ccut',  fmt(cuSwipeCut));
   $('row-cu-ccut').style.display = ccut > 0 ? '' : 'none';
   setV('p-cu-ded',   fmt(dedCostTot));
@@ -1158,21 +1282,22 @@ function go1() {
 
   // Charts
   renderM1Chart(cuRev, cuCosts, cuNet, sgRev, totalSal, sgNet);
-  renderM1Sankey(cuRev, floatRev, cuSwipeCut, dedCostTot, uberCostTot + uberSwipeCut, saas, surgeSwipeRev, cuNet, d1, d2, sal, ops, adm, sgNet);
+  renderM1Sankey(cuRev, floatRev, cuSwipeCut, dedCostTot, uberCostTot + uberSwipeCut, saas, surgeSwipeRev, boostRevTotal, boostRideCost, cuNet, d1, d2, sal, ops, adm, sgNet);
 
   // Sensitivity
   const curUtil = gv('n-m1-util') / 100;
+  const basePlanRevOnly = totalSwipes * pps + cuSwipeCut;
   const rows = [0.4, 0.5, 0.6, 0.7, 0.8].map(u => {
     const rSwipes   = totalSwipes * u;
     const rRides    = rSwipes / (swipeFactor || 1);
-    const rRideCost = rRides * blended;
-    const rCuNet    = cuRev - rRideCost - saas;
+    const rRideCost = rRides * blendedZ;
+    const rCuNet    = basePlanRevOnly + boostMargin - rRideCost - saas - surgeSwipeRev;
     const combined  = rCuNet + sgNet;
     const cur       = Math.abs(u - curUtil) < 0.005;
     return `<tr class="${cur ? 'cur-row' : ''}">
       <td><span class="ubadge">${(u*100).toFixed(0)}%</span></td>
-      <td>${fmt(cuRev)}</td>
-      <td>${fmt(rRideCost)}</td>
+      <td>${fmt(basePlanRevOnly + boostRevTotal)}</td>
+      <td>${fmt(rRideCost + boostRideCost)}</td>
       <td class="${rCuNet > 0 ? 'pos' : 'neg'}">${fmt(rCuNet)}</td>
       <td class="${sgNet > 0 ? 'pos' : 'neg'}">${fmt(sgNet)}</td>
       <td class="${combined > 0 ? 'pos' : 'neg'}">${fmt(combined)}</td>
@@ -1238,28 +1363,31 @@ function renderM1Chart(cuRev, cuCosts, cuNet, sgRev, sgCosts, sgNet) {
   }
 }
 
-function renderM1Sankey(cuRev, floatRev, cuSwipeCut, dedCostTot, uberTotal, saas, surgeSwipeRev, cuNet, d1, d2, sal, ops, adm, sgNet) {
+function renderM1Sankey(cuRev, floatRev, cuSwipeCut, dedCostTot, uberTotal, saas, surgeSwipeRev, boostRevTotal, boostRideCost, cuNet, d1, d2, sal, ops, adm, sgNet) {
   const flows = [];
   const cuDeficit = Math.max(0, -cuNet);
   const cuNetPos  = Math.max(0, cuNet);
   const sgDeficit = Math.max(0, -sgNet);
   const sgNetPos  = Math.max(0, sgNet);
-  // Total student inflow is swipe revenue minus any extra CU cut already baked in
-  const studentFlow = Math.round(cuRev - cuSwipeCut);
+  // Base plan student inflow
+  const studentFlow = Math.round(cuRev - cuSwipeCut - boostRevTotal);
 
   flows.push({ from: 'Students',   to: 'CU Revenue', flow: Math.max(1, studentFlow) });
+  if (boostRevTotal > 100) flows.push({ from: 'Students', to: 'CU Revenue', flow: Math.round(boostRevTotal) });
   if (cuSwipeCut > 100) flows.push({ from: 'CU Swipe Cut', to: 'CU Revenue', flow: Math.round(cuSwipeCut) });
   if (cuDeficit > 100)  flows.push({ from: 'CU Deficit',   to: 'CU Revenue', flow: Math.round(cuDeficit) });
 
   flows.push({ from: 'CU Revenue', to: 'Float Revenue', flow: Math.max(1, Math.round(floatRev)) });
-  if (dedCostTot + uberTotal > 0)
-    flows.push({ from: 'CU Revenue', to: 'Ride Pool', flow: Math.round(dedCostTot + uberTotal) });
+  const allRideCosts = dedCostTot + uberTotal + boostRideCost;
+  if (allRideCosts > 0)
+    flows.push({ from: 'CU Revenue', to: 'Ride Pool', flow: Math.round(allRideCosts) });
   const surgeFlow = Math.round(saas + surgeSwipeRev);
   if (surgeFlow > 0) flows.push({ from: 'CU Revenue', to: 'Surge', flow: surgeFlow });
   if (cuNetPos > 100) flows.push({ from: 'CU Revenue', to: 'CU Net', flow: Math.round(cuNetPos) });
 
-  if (dedCostTot > 100) flows.push({ from: 'Ride Pool', to: 'Ded. Drivers', flow: Math.round(dedCostTot) });
-  if (uberTotal > 100)  flows.push({ from: 'Ride Pool', to: 'Uber / Lyft',  flow: Math.round(uberTotal) });
+  if (dedCostTot > 100)    flows.push({ from: 'Ride Pool', to: 'Ded. Drivers',  flow: Math.round(dedCostTot) });
+  if (uberTotal > 100)     flows.push({ from: 'Ride Pool', to: 'Uber / Lyft',   flow: Math.round(uberTotal) });
+  if (boostRideCost > 100) flows.push({ from: 'Ride Pool', to: 'Booster Rides', flow: Math.round(boostRideCost) });
 
   if (sgDeficit > 100) flows.push({ from: 'Funding Gap', to: 'Surge', flow: Math.round(sgDeficit) });
 
@@ -1508,6 +1636,12 @@ const DEFAULTS = {
   'r-m1-dcost': 8,   'n-m1-dcost': 8.00,
   'r-m1-ucost': 13,  'n-m1-ucost': 13.00,
   'r-m1-mult': 1.5,  'n-m1-mult': 1.5,
+  'r-m1-zfrac': 20,  'n-m1-zfrac': 20,
+  'r-m1-zmult': 1.4, 'n-m1-zmult': 1.40,
+  'r-m1-brate': 25,  'n-m1-brate': 25,
+  'r-m1-bspp': 10,   'n-m1-bspp': 10,
+  'r-m1-bpps': 9.5,  'n-m1-bpps': 9.50,
+  'r-m1-butil': 80,  'n-m1-butil': 80,
   'r-m1-saas': 150000, 'n-m1-saas': 150000,
   'r-m1-sps': 0.50,   'n-m1-sps': 0.50,
   'r-m1-ccut': 0,     'n-m1-ccut': 0.0,
@@ -1540,6 +1674,31 @@ function restoreDefaults() {
   go1();
   go2();
 }
+
+// ─── SHARED PARAMETER SYNC ────────────────────────────
+// Keys that exist in both models and should stay in lock-step.
+const SHARED_KEYS = ['stu', 'spp', 'util', 'saas', 'd1', 'd2', 'sal', 'ops', 'adm'];
+
+SHARED_KEYS.forEach(key => {
+  ['m1', 'm2'].forEach(src => {
+    const dst = src === 'm1' ? 'm2' : 'm1';
+    ['r', 'n'].forEach(t => {
+      const el = $(`${t}-${src}-${key}`);
+      if (!el) return;
+      el.addEventListener('input', () => {
+        // By the time this fires, the inline oninput (rs/sr) has already
+        // clamped the value and synced the paired range ↔ number input.
+        const val = $(`r-${src}-${key}`).value;   // always read from range (clamped)
+        const toR = $(`r-${dst}-${key}`);
+        const toN = $(`n-${dst}-${key}`);
+        if (toR) toR.value = val;
+        if (toN) toN.value = val;
+        // Re-run the other model so its outputs reflect the new value.
+        if (src === 'm1') go2(); else go1();
+      });
+    });
+  });
+});
 
 // ─── INIT ──────────────────────────────────────────────
 go1();
