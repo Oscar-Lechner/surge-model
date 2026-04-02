@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CUNightRide Surge — Financial Model Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:         #080c12;
+  --bg-panel:   #0d1219;
+  --bg-card:    #111820;
+  --border:     #1c2840;
+  --border-hi:  #253352;
+  --text:       #d8e6f8;
+  --text-dim:   #8898b8;
+  --text-muted: #5a6d8a;
+  --accent:     #00e5cc;
+  --green:      #00d48a;
+  --red:        #ff3860;
+  --yellow:     #ffb300;
+  --mono: 'JetBrains Mono', 'Courier New', monospace;
+  --sans: 'Inter', system-ui, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* ── HEADER ─────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel);
+  flex-shrink: 0;
+}
+.hb { display: flex; align-items: center; gap: 10px; }
+.hb-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 8px var(--accent); flex-shrink:0; }
+.hb-name { font-family: var(--mono); font-size: 13px; font-weight: 700; letter-spacing: 0.06em; }
+.hb-name span { color: var(--accent); }
+.hb-sep { color: var(--border-hi); margin: 0 2px; }
+.hb-sub { font-size: 11px; color: var(--text-muted); }
+.hb-meta { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.1em; }
+
+/* ── TABS ────────────────────────────────── */
+.tabs {
+  display: flex;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  flex-shrink: 0;
+}
+.tab {
+  padding: 9px 18px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  transition: color .15s, border-color .15s;
+  user-select: none;
+}
+.tab:hover { color: var(--text-dim); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── PANES ───────────────────────────────── */
+.model-pane { display: none; height: calc(100vh - 81px); overflow: hidden; }
+.model-pane.active { display: flex; }
+
+/* ── INPUTS PANEL ────────────────────────── */
+.inputs-panel {
+  width: 340px;
+  min-width: 300px;
+  flex-shrink: 0;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+}
+.inp-section { padding: 14px 18px; border-bottom: 1px solid var(--border); }
+.inp-section-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.inp-row { margin-bottom: 10px; }
+.inp-row:last-child { margin-bottom: 0; }
+.inp-lbl {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 3px;
+}
+.inp-lbl-text { font-size: 11px; color: var(--text-dim); }
+.inp-lbl-hint { font-size: 9px; color: var(--text-muted); font-style: italic; }
+.inp-ctrl { display: flex; align-items: center; gap: 8px; }
+input[type="range"] {
+  flex: 1;
+  height: 3px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--border);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px; height: 12px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 5px var(--accent);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 12px; height: 12px;
+  background: var(--accent);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.numinput {
+  width: 76px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 3px 6px;
+  text-align: right;
+  outline: none;
+  transition: border-color .15s;
+}
+.numinput:focus { border-color: var(--accent); }
+.deriv-note {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 2px;
+}
+
+/* ── OUTPUTS PANEL ───────────────────────── */
+.outputs-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── STATUS BANNER ───────────────────────── */
+.status-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.pill {
+  display: flex; align-items: center; gap: 7px;
+  padding: 6px 12px;
+  border-radius: 3px;
+  border: 1px solid;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--mono);
+  letter-spacing: 0.05em;
+}
+.pill-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink:0; }
+.pill.g  { background: rgba(0,212,138,.07); border-color: rgba(0,212,138,.3); color: var(--green); }
+.pill.r  { background: rgba(255,56,96,.07);  border-color: rgba(255,56,96,.3);  color: var(--red);   }
+.pill.y  { background: rgba(255,179,0,.07);  border-color: rgba(255,179,0,.3);  color: var(--yellow);}
+
+/* ── METRIC CARDS ────────────────────────── */
+.metrics-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.mcard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 12px 14px;
+}
+.mcard-lbl { font-size: 9px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 5px; }
+.mcard-val { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--text); line-height: 1; }
+.mcard-val.pos { color: var(--green); }
+.mcard-val.neg { color: var(--red); }
+.mcard-val.warn { color: var(--yellow); }
+.mcard-sub { font-family: var(--mono); font-size: 9px; color: var(--text-muted); margin-top: 4px; }
+
+/* ── PNL GRID ────────────────────────────── */
+.pnl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pnl-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 14px 16px;
+}
+.pnl-title {
+  font-size: 9px; font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--border);
+}
+.pnl-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(28,40,64,.4);
+}
+.pnl-line:last-child { border-bottom: none; }
+.pnl-ll { font-size: 11px; color: var(--text-dim); }
+.pnl-lv { font-family: var(--mono); font-size: 11px; color: var(--text); font-weight: 500; }
+.pnl-lv.pos { color: var(--green); }
+.pnl-lv.neg { color: var(--red); }
+.pnl-net {
+  margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid var(--border-hi);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.pnl-net-lbl { font-size: 11px; font-weight: 700; color: var(--text); letter-spacing: 0.05em; }
+.pnl-net-val { font-family: var(--mono); font-size: 20px; font-weight: 700; }
+.pnl-net-val.pos { color: var(--green); }
+.pnl-net-val.neg { color: var(--red); }
+
+/* ── CHART SECTION ───────────────────────── */
+.chart-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 14px 16px;
+}
+.sec-title {
+  font-size: 9px; font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.chart-wrap { position: relative; height: 210px; }
+
+/* ── SENSITIVITY TABLE ───────────────────── */
+.sens-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+}
+.sens-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.sens-tbl th {
+  text-align: right;
+  padding: 5px 8px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  font-size: 9px;
+  text-transform: uppercase;
+}
+.sens-tbl th:first-child { text-align: left; }
+.sens-tbl td { padding: 5px 8px; border-bottom: 1px solid rgba(28,40,64,.35); text-align: right; }
+.sens-tbl td:first-child { text-align: left; }
+.sens-tbl tr:last-child td { border-bottom: none; }
+.sens-tbl td.pos { color: var(--green); }
+.sens-tbl td.neg { color: var(--red); }
+.sens-tbl td.warn { color: var(--yellow); }
+.sens-tbl tr.cur-row { background: rgba(0,229,204,.04); }
+.ubadge {
+  display: inline-block; padding: 1px 6px;
+  border-radius: 2px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hi);
+  color: var(--accent);
+  font-size: 10px;
+}
+
+/* ── WIDE PNLCARD (M2) ───────────────────── */
+.pnl-wide {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 14px 16px;
+}
+.pnl-wide-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 0 36px; }
+
+/* ── SCROLLBAR ───────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* ── RESPONSIVE ──────────────────────────── */
+.reset-btn {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  background: var(--bg-card);
+  border: 1px solid var(--border-hi);
+  border-radius: 3px;
+  padding: 5px 11px;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+.reset-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+@media (max-width: 860px) {
+  .model-pane.active { flex-direction: column; height: auto; overflow: visible; }
+  .inputs-panel { width: 100%; max-height: 45vh; }
+  .pnl-grid, .pnl-wide-inner { grid-template-columns: 1fr; }
+  .metrics-row { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="hb">
+    <div class="hb-dot"></div>
+    <div class="hb-name">CUNIGHTRIDE <span>SURGE</span></div>
+    <span class="hb-sep">|</span>
+    <span class="hb-sub">Financial Model Dashboard</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <div class="hb-meta">LIVE · v1.0</div>
+    <button class="reset-btn" onclick="restoreDefaults()">↺ RESTORE DEFAULTS</button>
+  </div>
+</header>
+
+<!-- TABS -->
+<nav class="tabs">
+  <div class="tab active" data-tab="m1" onclick="switchTab('m1')">Model 1 — CU Boulder Beachhead</div>
+  <div class="tab" data-tab="m2" onclick="switchTab('m2')">Model 2 — SaaS Scale</div>
+</nav>
+
+<!-- ═══════════════════════ MODEL 1 ═══════════════════════ -->
+<div class="model-pane active" id="pane-m1">
+
+  <div class="inputs-panel">
+
+    <div class="inp-section">
+      <div class="inp-section-label">Swipe Plan</div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Students purchasing plans</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-stu" min="1000" max="37000" step="500" value="15000"
+            oninput="rs('r-m1-stu','n-m1-stu',0);go1()">
+          <input type="number" id="n-m1-stu" class="numinput" value="15000"
+            oninput="sr('r-m1-stu','n-m1-stu',1000,37000);go1()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Swipes per plan</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-spp" min="5" max="60" step="1" value="20"
+            oninput="rs('r-m1-spp','n-m1-spp',0);go1()">
+          <input type="number" id="n-m1-spp" class="numinput" value="20"
+            oninput="sr('r-m1-spp','n-m1-spp',5,60);go1()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Price per swipe ($)</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-pps" min="1" max="25" step="0.25" value="9"
+            oninput="rs('r-m1-pps','n-m1-pps',2);go1()">
+          <input type="number" id="n-m1-pps" class="numinput" value="9.00" step="0.25"
+            oninput="sr('r-m1-pps','n-m1-pps',1,25);go1()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl">
+          <span class="inp-lbl-text">Swipe utilization rate (%)</span>
+          <span class="inp-lbl-hint">unused = float rev</span>
+        </div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-util" min="1" max="100" step="1" value="60"
+            oninput="rs('r-m1-util','n-m1-util',0);go1()">
+          <input type="number" id="n-m1-util" class="numinput" value="60" min="1" max="100"
+            oninput="sr('r-m1-util','n-m1-util',1,100);go1()">
+        </div>
+      </div>
+    </div><!-- /swipe plan -->
+
+    <div class="inp-section">
+      <div class="inp-section-label">Ride Fulfillment</div>
+
+      <div class="inp-row">
+        <div class="inp-lbl">
+          <span class="inp-lbl-text">Dedicated CU drivers (%)</span>
+          <span class="inp-lbl-hint" id="uber-pct-lbl">Uber/Lyft: 70%</span>
+        </div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-ded" min="0" max="100" step="5" value="30"
+            oninput="rs('r-m1-ded','n-m1-ded',0);updUber();go1()">
+          <input type="number" id="n-m1-ded" class="numinput" value="30" min="0" max="100"
+            oninput="sr('r-m1-ded','n-m1-ded',0,100);updUber();go1()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Dedicated driver cost / ride ($)</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-dcost" min="4" max="25" step="0.5" value="8"
+            oninput="rs('r-m1-dcost','n-m1-dcost',2);go1()">
+          <input type="number" id="n-m1-dcost" class="numinput" value="8.00" step="0.5"
+            oninput="sr('r-m1-dcost','n-m1-dcost',4,25);go1()">
+        </div>
+        <div class="deriv-note">derived: $20/hr ÷ 2.5 rides/hr = $8.00/ride</div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Uber/Lyft cost / ride ($)</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-ucost" min="5" max="35" step="0.5" value="13"
+            oninput="rs('r-m1-ucost','n-m1-ucost',2);go1()">
+          <input type="number" id="n-m1-ucost" class="numinput" value="13.00" step="0.5"
+            oninput="sr('r-m1-ucost','n-m1-ucost',5,35);go1()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl">
+          <span class="inp-lbl-text">Uber/Lyft surge multiplier</span>
+          <span class="inp-lbl-hint">swipes per ride</span>
+        </div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-mult" min="1" max="3" step="0.1" value="1.5"
+            oninput="rs('r-m1-mult','n-m1-mult',1);go1()">
+          <input type="number" id="n-m1-mult" class="numinput" value="1.5" step="0.1"
+            oninput="sr('r-m1-mult','n-m1-mult',1,3);go1()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Annual SaaS license — CU pays ($)</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-saas" min="25000" max="500000" step="5000" value="150000"
+            oninput="rs('r-m1-saas','n-m1-saas',0);go1()">
+          <input type="number" id="n-m1-saas" class="numinput" value="150000"
+            oninput="sr('r-m1-saas','n-m1-saas',25000,500000);go1()">
+        </div>
+      </div>
+    </div><!-- /ride fulfillment -->
+
+    <div class="inp-section">
+      <div class="inp-section-label">Surge Headcount — Annual Salaries</div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Full-stack Dev #1</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-d1" min="60000" max="220000" step="5000" value="120000"
+            oninput="rs('r-m1-d1','n-m1-d1',0);go1()">
+          <input type="number" id="n-m1-d1" class="numinput" value="120000"
+            oninput="sr('r-m1-d1','n-m1-d1',60000,220000);go1()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Dev #2 / Contractor</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-d2" min="20000" max="160000" step="5000" value="60000"
+            oninput="rs('r-m1-d2','n-m1-d2',0);go1()">
+          <input type="number" id="n-m1-d2" class="numinput" value="60000"
+            oninput="sr('r-m1-d2','n-m1-d2',20000,160000);go1()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Sales / BD</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-sal" min="40000" max="160000" step="5000" value="80000"
+            oninput="rs('r-m1-sal','n-m1-sal',0);go1()">
+          <input type="number" id="n-m1-sal" class="numinput" value="80000"
+            oninput="sr('r-m1-sal','n-m1-sal',40000,160000);go1()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Ops / Customer Success</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-ops" min="40000" max="130000" step="5000" value="65000"
+            oninput="rs('r-m1-ops','n-m1-ops',0);go1()">
+          <input type="number" id="n-m1-ops" class="numinput" value="65000"
+            oninput="sr('r-m1-ops','n-m1-ops',40000,130000);go1()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Part-time Admin</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m1-adm" min="10000" max="80000" step="2500" value="35000"
+            oninput="rs('r-m1-adm','n-m1-adm',0);go1()">
+          <input type="number" id="n-m1-adm" class="numinput" value="35000"
+            oninput="sr('r-m1-adm','n-m1-adm',10000,80000);go1()">
+        </div>
+      </div>
+    </div><!-- /headcount -->
+
+  </div><!-- /inputs-panel m1 -->
+
+  <!-- ── OUTPUTS M1 ── -->
+  <div class="outputs-panel">
+
+    <div class="status-row" id="m1-status"></div>
+
+    <div class="metrics-row">
+      <div class="mcard">
+        <div class="mcard-lbl">CU Annual Revenue</div>
+        <div class="mcard-val" id="m1-cu-rev">—</div>
+        <div class="mcard-sub">from swipe plan sales</div>
+      </div>
+      <div class="mcard">
+        <div class="mcard-lbl">Float Revenue</div>
+        <div class="mcard-val pos" id="m1-float">—</div>
+        <div class="mcard-sub">unused swipes (pure margin)</div>
+      </div>
+      <div class="mcard">
+        <div class="mcard-lbl">Total Ride Costs</div>
+        <div class="mcard-val" id="m1-ridecost">—</div>
+        <div class="mcard-sub" id="m1-rides-sub">— rides fulfilled</div>
+      </div>
+      <div class="mcard">
+        <div class="mcard-lbl">CU Break-Even Util</div>
+        <div class="mcard-val" id="m1-be-util">—</div>
+        <div class="mcard-sub">max utilization before loss</div>
+      </div>
+    </div>
+
+    <div class="pnl-grid">
+
+      <div class="pnl-card">
+        <div class="pnl-title">CU Boulder — P&amp;L</div>
+        <div class="pnl-line">
+          <span class="pnl-ll">Swipe plan revenue</span>
+          <span class="pnl-lv" id="p-cu-rev">—</span>
+        </div>
+        <div class="pnl-line">
+          <span class="pnl-ll">↳ Float (unused swipes)</span>
+          <span class="pnl-lv pos" id="p-cu-float">—</span>
+        </div>
+        <div class="pnl-line">
+          <span class="pnl-ll">Dedicated driver costs</span>
+          <span class="pnl-lv" id="p-cu-ded">—</span>
+        </div>
+        <div class="pnl-line">
+          <span class="pnl-ll">Uber / Lyft costs</span>
+          <span class="pnl-lv" id="p-cu-uber">—</span>
+        </div>
+        <div class="pnl-line">
+          <span class="pnl-ll">SaaS fee paid to Surge</span>
+          <span class="pnl-lv" id="p-cu-saas">—</span>
+        </div>
+        <div class="pnl-net">
+          <span class="pnl-net-lbl">CU NET</span>
+          <span class="pnl-net-val" id="m1-cu-net">—</span>
+        </div>
+      </div>
+
+      <div class="pnl-card">
+        <div class="pnl-title">Surge — P&amp;L</div>
+        <div class="pnl-line">
+          <span class="pnl-ll">SaaS license revenue</span>
+          <span class="pnl-lv" id="p-sg-saas">—</span>
+        </div>
+        <div class="pnl-line">
+          <span class="pnl-ll">Gross before headcount</span>
+          <span class="pnl-lv pos" id="p-sg-gross">—</span>
+        </div>
+        <div class="pnl-line">
+          <span class="pnl-ll">Dev #1</span>
+          <span class="pnl-lv" id="p-sg-d1">—</span>
+        </div>
+        <div class="pnl-line">
+          <span class="pnl-ll">Dev #2 / Contractor</span>
+          <span class="pnl-lv" id="p-sg-d2">—</span>
+        </div>
+        <div class="pnl-line">
+          <span class="pnl-ll">Sales / BD</span>
+          <span class="pnl-lv" id="p-sg-sal">—</span>
+        </div>
+        <div class="pnl-line">
+          <span class="pnl-ll">Ops / CS + Admin</span>
+          <span class="pnl-lv" id="p-sg-ops">—</span>
+        </div>
+        <div class="pnl-line">
+          <span class="pnl-ll" style="font-weight:600;color:var(--text)">Total salaries</span>
+          <span class="pnl-lv" style="font-weight:700" id="p-sg-totsal">—</span>
+        </div>
+        <div class="pnl-net">
+          <span class="pnl-net-lbl">SURGE NET</span>
+          <span class="pnl-net-val" id="m1-sg-net">—</span>
+        </div>
+      </div>
+
+    </div><!-- /pnl-grid -->
+
+    <div class="chart-section">
+      <div class="sec-title">Revenue · Costs · Net — Both Parties</div>
+      <div class="chart-wrap"><canvas id="chart-m1"></canvas></div>
+    </div>
+
+    <div class="sens-section">
+      <div class="sec-title">Sensitivity — CU &amp; Surge Net by Utilization Rate</div>
+      <table class="sens-tbl">
+        <thead>
+          <tr>
+            <th>Utilization</th>
+            <th>CU Revenue</th>
+            <th>CU Ride Costs</th>
+            <th>CU Net</th>
+            <th>Surge Net</th>
+            <th>Combined</th>
+          </tr>
+        </thead>
+        <tbody id="m1-sens"></tbody>
+      </table>
+    </div>
+
+  </div><!-- /outputs m1 -->
+</div><!-- /pane-m1 -->
+
+
+<!-- ═══════════════════════ MODEL 2 ═══════════════════════ -->
+<div class="model-pane" id="pane-m2">
+
+  <div class="inputs-panel">
+
+    <div class="inp-section">
+      <div class="inp-section-label">Scale Parameters</div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Universities signed</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m2-unis" min="1" max="50" step="1" value="1"
+            oninput="rs('r-m2-unis','n-m2-unis',0);go2()">
+          <input type="number" id="n-m2-unis" class="numinput" value="1" min="1" max="50"
+            oninput="sr('r-m2-unis','n-m2-unis',1,50);go2()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Avg SaaS license / university ($)</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m2-saas" min="25000" max="500000" step="5000" value="150000"
+            oninput="rs('r-m2-saas','n-m2-saas',0);go2()">
+          <input type="number" id="n-m2-saas" class="numinput" value="150000"
+            oninput="sr('r-m2-saas','n-m2-saas',25000,500000);go2()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Avg students / university</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m2-stu" min="1000" max="40000" step="500" value="15000"
+            oninput="rs('r-m2-stu','n-m2-stu',0);go2()">
+          <input type="number" id="n-m2-stu" class="numinput" value="15000"
+            oninput="sr('r-m2-stu','n-m2-stu',1000,40000);go2()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Per-swipe margin Surge keeps ($)</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m2-marg" min="0.10" max="3.00" step="0.05" value="0.60"
+            oninput="rs('r-m2-marg','n-m2-marg',2);go2()">
+          <input type="number" id="n-m2-marg" class="numinput" value="0.60" step="0.05"
+            oninput="sr('r-m2-marg','n-m2-marg',0.10,3.00);go2()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Avg swipes purchased / student</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m2-spp" min="5" max="60" step="1" value="20"
+            oninput="rs('r-m2-spp','n-m2-spp',0);go2()">
+          <input type="number" id="n-m2-spp" class="numinput" value="20"
+            oninput="sr('r-m2-spp','n-m2-spp',5,60);go2()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Utilization rate (%)</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m2-util" min="1" max="100" step="1" value="60"
+            oninput="rs('r-m2-util','n-m2-util',0);go2()">
+          <input type="number" id="n-m2-util" class="numinput" value="60" min="1" max="100"
+            oninput="sr('r-m2-util','n-m2-util',1,100);go2()">
+        </div>
+      </div>
+    </div><!-- /scale -->
+
+    <div class="inp-section">
+      <div class="inp-section-label">Surge Headcount — Annual Salaries</div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Full-stack Dev #1</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m2-d1" min="60000" max="220000" step="5000" value="120000"
+            oninput="rs('r-m2-d1','n-m2-d1',0);go2()">
+          <input type="number" id="n-m2-d1" class="numinput" value="120000"
+            oninput="sr('r-m2-d1','n-m2-d1',60000,220000);go2()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Dev #2 / Contractor</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m2-d2" min="20000" max="160000" step="5000" value="60000"
+            oninput="rs('r-m2-d2','n-m2-d2',0);go2()">
+          <input type="number" id="n-m2-d2" class="numinput" value="60000"
+            oninput="sr('r-m2-d2','n-m2-d2',20000,160000);go2()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Sales / BD</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m2-sal" min="40000" max="160000" step="5000" value="80000"
+            oninput="rs('r-m2-sal','n-m2-sal',0);go2()">
+          <input type="number" id="n-m2-sal" class="numinput" value="80000"
+            oninput="sr('r-m2-sal','n-m2-sal',40000,160000);go2()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Ops / Customer Success</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m2-ops" min="40000" max="130000" step="5000" value="65000"
+            oninput="rs('r-m2-ops','n-m2-ops',0);go2()">
+          <input type="number" id="n-m2-ops" class="numinput" value="65000"
+            oninput="sr('r-m2-ops','n-m2-ops',40000,130000);go2()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Part-time Admin</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m2-adm" min="10000" max="80000" step="2500" value="35000"
+            oninput="rs('r-m2-adm','n-m2-adm',0);go2()">
+          <input type="number" id="n-m2-adm" class="numinput" value="35000"
+            oninput="sr('r-m2-adm','n-m2-adm',10000,80000);go2()">
+        </div>
+      </div>
+    </div><!-- /headcount m2 -->
+
+  </div><!-- /inputs m2 -->
+
+  <!-- ── OUTPUTS M2 ── -->
+  <div class="outputs-panel">
+
+    <div class="status-row" id="m2-status"></div>
+
+    <div class="metrics-row">
+      <div class="mcard">
+        <div class="mcard-lbl">Total SaaS Revenue</div>
+        <div class="mcard-val" id="m2-saas-rev">—</div>
+        <div class="mcard-sub" id="m2-saas-sub">— universities</div>
+      </div>
+      <div class="mcard">
+        <div class="mcard-lbl">Ride Margin Revenue</div>
+        <div class="mcard-val" id="m2-ride-rev">—</div>
+        <div class="mcard-sub">on redeemed swipes</div>
+      </div>
+      <div class="mcard">
+        <div class="mcard-lbl">Total Revenue</div>
+        <div class="mcard-val" id="m2-total-rev">—</div>
+        <div class="mcard-sub">SaaS + ride margin</div>
+      </div>
+      <div class="mcard">
+        <div class="mcard-lbl">Net Profit</div>
+        <div class="mcard-val" id="m2-net">—</div>
+        <div class="mcard-sub" id="m2-marg-sub">—% margin</div>
+      </div>
+      <div class="mcard">
+        <div class="mcard-lbl">Revenue / Employee</div>
+        <div class="mcard-val" id="m2-rev-emp">—</div>
+        <div class="mcard-sub">5 employees</div>
+      </div>
+      <div class="mcard">
+        <div class="mcard-lbl">Break-Even Schools</div>
+        <div class="mcard-val pos" id="m2-be-schools">—</div>
+        <div class="mcard-sub">min universities needed</div>
+      </div>
+    </div>
+
+    <div class="pnl-wide">
+      <div class="pnl-title">Surge — Scale P&amp;L (<span id="m2-pnl-unis-lbl">1</span> <span id="m2-pnl-uni-word">university</span>)</div>
+      <div class="pnl-wide-inner">
+        <div>
+          <div class="pnl-line">
+            <span class="pnl-ll">SaaS license revenue</span>
+            <span class="pnl-lv" id="p2-saas">—</span>
+          </div>
+          <div class="pnl-line">
+            <span class="pnl-ll">Per-swipe margin revenue</span>
+            <span class="pnl-lv" id="p2-ride">—</span>
+          </div>
+          <div class="pnl-line" style="border-bottom:1px solid var(--border-hi);padding-bottom:6px;margin-bottom:2px;">
+            <span class="pnl-ll" style="font-weight:600;color:var(--text)">Total revenue</span>
+            <span class="pnl-lv" style="font-weight:700" id="p2-totrev">—</span>
+          </div>
+        </div>
+        <div>
+          <div class="pnl-line">
+            <span class="pnl-ll">Dev #1 + Dev #2</span>
+            <span class="pnl-lv" id="p2-devs">—</span>
+          </div>
+          <div class="pnl-line">
+            <span class="pnl-ll">Sales + Ops + Admin</span>
+            <span class="pnl-lv" id="p2-ops">—</span>
+          </div>
+          <div class="pnl-line" style="border-bottom:1px solid var(--border-hi);padding-bottom:6px;margin-bottom:2px;">
+            <span class="pnl-ll" style="font-weight:600;color:var(--text)">Total headcount</span>
+            <span class="pnl-lv" style="font-weight:700" id="p2-totsal">—</span>
+          </div>
+        </div>
+      </div>
+      <div class="pnl-net" style="margin-top:10px;">
+        <span class="pnl-net-lbl">SURGE NET PROFIT</span>
+        <span class="pnl-net-val" id="m2-pnl-net">—</span>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="sec-title">Revenue vs Costs — Schools 1–20 (stacked revenue, cost threshold line)</div>
+      <div class="chart-wrap"><canvas id="chart-m2"></canvas></div>
+    </div>
+
+    <div class="sens-section">
+      <div class="sec-title">Sensitivity — Net Profit by Utilization Rate</div>
+      <table class="sens-tbl">
+        <thead>
+          <tr>
+            <th>Utilization</th>
+            <th>SaaS Rev</th>
+            <th>Ride Margin</th>
+            <th>Total Rev</th>
+            <th>Net Profit</th>
+            <th>Net Margin</th>
+          </tr>
+        </thead>
+        <tbody id="m2-sens"></tbody>
+      </table>
+    </div>
+
+  </div><!-- /outputs m2 -->
+</div><!-- /pane-m2 -->
+
+<!-- ═══════════════════ JAVASCRIPT ═══════════════════════ -->
+<script>
+// ─── HELPERS ──────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const gv = id => parseFloat($(id).value) || 0;
+
+function rs(rid, nid, dec) {
+  $(nid).value = parseFloat($(rid).value).toFixed(dec);
+}
+function sr(rid, nid, lo, hi) {
+  let v = parseFloat($(nid).value);
+  if (isNaN(v)) v = lo;
+  v = Math.max(lo, Math.min(hi, v));
+  $(rid).value = v;
+}
+
+function fmt(n, dec = 0) {
+  if (n == null || isNaN(n)) return '—';
+  const s = n < 0 ? '-' : '';
+  const a = Math.abs(n);
+  if (a >= 1e6) return `${s}$${(a / 1e6).toFixed(2)}M`;
+  if (a >= 1e3) return `${s}$${(a / 1e3).toFixed(1)}K`;
+  return `${s}$${a.toFixed(dec)}`;
+}
+
+function fmtPct(x) {
+  if (!isFinite(x)) return '—';
+  return (x * 100).toFixed(1) + '%';
+}
+
+function fmtN(n) { return Math.round(n).toLocaleString(); }
+
+function setV(id, txt) {
+  const el = $(id); if (el) el.textContent = txt;
+}
+
+function setC(id, val, rev) {
+  const el = $(id); if (!el) return;
+  el.classList.remove('pos', 'neg', 'warn');
+  if (val > 0 && rev && val < rev * 0.05) el.classList.add('warn');
+  else if (val > 0) el.classList.add('pos');
+  else if (val < 0) el.classList.add('neg');
+}
+
+function netCls(v, rev) {
+  if (v < 0) return 'neg';
+  if (rev && v < rev * 0.05) return 'warn';
+  return 'pos';
+}
+
+function updUber() {
+  const d = gv('n-m1-ded');
+  $('uber-pct-lbl').textContent = `Uber/Lyft: ${(100 - d).toFixed(0)}%`;
+}
+
+// ─── MODEL 1 ──────────────────────────────────────────
+let ch1 = null;
+
+function go1() {
+  const stu   = gv('n-m1-stu');
+  const spp   = gv('n-m1-spp');
+  const pps   = gv('n-m1-pps');
+  const util  = gv('n-m1-util') / 100;
+  const ded   = gv('n-m1-ded') / 100;
+  const dcost = gv('n-m1-dcost');
+  const ucost = gv('n-m1-ucost');
+  const mult  = gv('n-m1-mult');
+  const saas  = gv('n-m1-saas');
+  const d1    = gv('n-m1-d1');
+  const d2    = gv('n-m1-d2');
+  const sal   = gv('n-m1-sal');
+  const ops   = gv('n-m1-ops');
+  const adm   = gv('n-m1-adm');
+
+  const totalSwipes    = stu * spp;
+  const redeemedSwipes = totalSwipes * util;
+  const floatSwipes    = totalSwipes * (1 - util);
+
+  // Dedicated rides use 1 swipe; Uber/Lyft use `mult` swipes
+  // swipesUsed = dedRides*1 + uberRides*mult
+  // dedRides = ded * totalRides, uberRides = (1-ded)*totalRides
+  const swipeFactor = ded + (1 - ded) * mult;
+  const totalRides  = redeemedSwipes / (swipeFactor || 1);
+  const dedRides    = totalRides * ded;
+  const uberRides   = totalRides * (1 - ded);
+
+  const dedCostTot  = dedRides * dcost;
+  const uberCostTot = uberRides * ucost;
+  const totalRideCost = dedCostTot + uberCostTot;
+
+  // CU P&L
+  const cuRev     = totalSwipes * pps;
+  const floatRev  = floatSwipes * pps;
+  const cuCosts   = totalRideCost + saas;
+  const cuNet     = cuRev - cuCosts;
+
+  // Surge P&L
+  const totalSal  = d1 + d2 + sal + ops + adm;
+  const sgRev     = saas;
+  const sgNet     = sgRev - totalSal;
+
+  // Break-even utilization for CU:
+  // cuRev - (totalSwipes * u / swipeFactor) * blendedCostPerRide - saas = 0
+  // blendedCostPerRide is constant w.r.t. u
+  const blended   = ded * dcost + (1 - ded) * ucost;
+  const beUtil    = (cuRev - saas) * swipeFactor / (totalSwipes * (blended || 1));
+
+  // ── DOM updates ──────────────────────────
+  setV('m1-cu-rev',   fmt(cuRev));
+  setV('m1-float',    fmt(floatRev));
+  setV('m1-ridecost', fmt(totalRideCost));
+  setV('m1-rides-sub', `${fmtN(Math.round(totalRides))} rides fulfilled`);
+
+  const beEl = $('m1-be-util');
+  beEl.textContent = beUtil > 1 ? '>100%' : beUtil < 0 ? 'N/A' : fmtPct(beUtil);
+  beEl.className = 'mcard-val ' + (beUtil > 0.90 ? 'pos' : beUtil > 0.65 ? 'warn' : 'neg');
+
+  // CU P&L rows
+  setV('p-cu-rev',   fmt(cuRev));
+  setV('p-cu-float', fmt(floatRev));
+  setV('p-cu-ded',   fmt(dedCostTot));
+  setV('p-cu-uber',  fmt(uberCostTot));
+  setV('p-cu-saas',  fmt(saas));
+
+  const cuNetEl = $('m1-cu-net');
+  cuNetEl.textContent = fmt(cuNet);
+  cuNetEl.className = 'pnl-net-val ' + netCls(cuNet, cuRev);
+
+  // Surge P&L rows
+  setV('p-sg-saas',   fmt(sgRev));
+  setV('p-sg-gross',  fmt(sgRev));
+  setV('p-sg-d1',     fmt(d1));
+  setV('p-sg-d2',     fmt(d2));
+  setV('p-sg-sal',    fmt(sal));
+  setV('p-sg-ops',    fmt(ops + adm));
+  setV('p-sg-totsal', fmt(totalSal));
+
+  const sgNetEl = $('m1-sg-net');
+  sgNetEl.textContent = fmt(sgNet);
+  sgNetEl.className = 'pnl-net-val ' + netCls(sgNet, sgRev);
+
+  // Status banner
+  const cuSt = cuNet > 0 ? 'g' : 'r';
+  const sgSt = sgNet > 0 ? 'g' : 'r';
+  const both = cuNet > 0 && sgNet > 0;
+  const neither = cuNet <= 0 && sgNet <= 0;
+  const overallCls = both ? 'g' : neither ? 'r' : 'y';
+  const overallLbl = both ? 'BOTH PROFITABLE' : neither ? 'BOTH LOSING' : 'ONE PARTY LOSING';
+
+  $('m1-status').innerHTML =
+    pill(cuSt, `CU BOULDER: ${cuNet >= 0 ? 'PROFITABLE' : 'LOSING'} (${fmt(cuNet)})`) +
+    pill(sgSt, `SURGE: ${sgNet >= 0 ? 'PROFITABLE' : 'LOSING'} (${fmt(sgNet)})`) +
+    pill(overallCls, overallLbl);
+
+  // Chart
+  renderM1Chart(cuRev, cuCosts, cuNet, sgRev, totalSal, sgNet);
+
+  // Sensitivity
+  const curUtil = gv('n-m1-util') / 100;
+  const rows = [0.4, 0.5, 0.6, 0.7, 0.8].map(u => {
+    const rSwipes   = totalSwipes * u;
+    const rRides    = rSwipes / (swipeFactor || 1);
+    const rRideCost = rRides * blended;
+    const rCuNet    = cuRev - rRideCost - saas;
+    const combined  = rCuNet + sgNet;
+    const cur       = Math.abs(u - curUtil) < 0.005;
+    return `<tr class="${cur ? 'cur-row' : ''}">
+      <td><span class="ubadge">${(u*100).toFixed(0)}%</span></td>
+      <td>${fmt(cuRev)}</td>
+      <td>${fmt(rRideCost)}</td>
+      <td class="${rCuNet > 0 ? 'pos' : 'neg'}">${fmt(rCuNet)}</td>
+      <td class="${sgNet > 0 ? 'pos' : 'neg'}">${fmt(sgNet)}</td>
+      <td class="${combined > 0 ? 'pos' : 'neg'}">${fmt(combined)}</td>
+    </tr>`;
+  });
+  $('m1-sens').innerHTML = rows.join('');
+}
+
+function renderM1Chart(cuRev, cuCosts, cuNet, sgRev, sgCosts, sgNet) {
+  const labels  = ['CU Rev', 'CU Costs', 'CU Net', 'Surge Rev', 'Surge Costs', 'Surge Net'];
+  const values  = [cuRev, cuCosts, cuNet, sgRev, sgCosts, sgNet];
+  const colors  = [
+    'rgba(0,229,204,.75)',
+    'rgba(255,56,96,.75)',
+    cuNet  >= 0 ? 'rgba(0,212,138,.75)' : 'rgba(255,179,0,.75)',
+    'rgba(0,200,178,.55)',
+    'rgba(255,56,96,.50)',
+    sgNet  >= 0 ? 'rgba(0,212,138,.55)' : 'rgba(255,179,0,.55)',
+  ];
+  const borders = colors.map(c => c.replace(/[\d.]+\)$/, '1)'));
+
+  const cfg = {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: colors,
+        borderColor: borders,
+        borderWidth: 1,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 100 },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#8898b8', font: { family: 'JetBrains Mono', size: 10 } },
+          grid:  { color: 'rgba(28,40,64,.7)' },
+          border:{ color: 'rgba(28,40,64,.8)' },
+        },
+        y: {
+          ticks: { color: '#8898b8', font: { family: 'JetBrains Mono', size: 10 }, callback: v => fmt(v) },
+          grid:  { color: 'rgba(28,40,64,.5)' },
+          border:{ color: 'rgba(28,40,64,.8)' },
+        }
+      }
+    }
+  };
+
+  if (ch1) {
+    ch1.data.datasets[0].data             = values;
+    ch1.data.datasets[0].backgroundColor  = colors;
+    ch1.data.datasets[0].borderColor      = borders;
+    ch1.update('none');
+  } else {
+    ch1 = new Chart($('chart-m1').getContext('2d'), cfg);
+  }
+}
+
+// ─── MODEL 2 ──────────────────────────────────────────
+let ch2 = null;
+
+function go2() {
+  const unis  = gv('n-m2-unis');
+  const avgS  = gv('n-m2-saas');
+  const avgStu = gv('n-m2-stu');
+  const marg  = gv('n-m2-marg');
+  const spp   = gv('n-m2-spp');
+  const util  = gv('n-m2-util') / 100;
+  const d1    = gv('n-m2-d1');
+  const d2    = gv('n-m2-d2');
+  const sal   = gv('n-m2-sal');
+  const ops   = gv('n-m2-ops');
+  const adm   = gv('n-m2-adm');
+
+  const totalSal   = d1 + d2 + sal + ops + adm;
+  const saasRev    = unis * avgS;
+  const swipesPerU = avgStu * spp * util;
+  const rideRevPerU = swipesPerU * marg;
+  const rideRev    = unis * rideRevPerU;
+  const totalRev   = saasRev + rideRev;
+  const netProfit  = totalRev - totalSal;
+  const marginPct  = totalRev > 0 ? netProfit / totalRev : 0;
+  const revPerEmp  = totalRev / 5;
+
+  const revPerUni  = avgS + rideRevPerU;
+  const beSchools  = revPerUni > 0 ? Math.ceil(totalSal / revPerUni) : Infinity;
+
+  // DOM
+  setV('m2-saas-rev',   fmt(saasRev));
+  setV('m2-saas-sub',   `${unis} ${unis === 1 ? 'university' : 'universities'}`);
+  setV('m2-ride-rev',   fmt(rideRev));
+  setV('m2-total-rev',  fmt(totalRev));
+  setV('m2-marg-sub',   `${(marginPct * 100).toFixed(1)}% net margin`);
+  setV('m2-rev-emp',    fmt(revPerEmp));
+  setV('m2-be-schools', isFinite(beSchools) ? beSchools.toString() : '∞');
+
+  const netEl = $('m2-net');
+  netEl.textContent = fmt(netProfit);
+  netEl.className = 'mcard-val ' + netCls(netProfit, totalRev);
+
+  // P&L wide
+  setV('m2-pnl-unis-lbl', unis);
+  setV('m2-pnl-uni-word', unis === 1 ? 'university' : 'universities');
+  setV('p2-saas',    fmt(saasRev));
+  setV('p2-ride',    fmt(rideRev));
+  setV('p2-totrev',  fmt(totalRev));
+  setV('p2-devs',    fmt(d1 + d2));
+  setV('p2-ops',     fmt(sal + ops + adm));
+  setV('p2-totsal',  fmt(totalSal));
+
+  const m2NetEl = $('m2-pnl-net');
+  m2NetEl.textContent = fmt(netProfit);
+  m2NetEl.className = 'pnl-net-val ' + netCls(netProfit, totalRev);
+
+  // Status banner
+  const st = netProfit > 0 ? 'g' : netProfit === 0 ? 'y' : 'r';
+  const stLbl = netProfit > 0 ? 'PROFITABLE' : netProfit < 0 ? 'UNPROFITABLE' : 'BREAK-EVEN';
+  $('m2-status').innerHTML =
+    pill(st, `SURGE: ${stLbl} (${fmt(netProfit)})`) +
+    pill('g', `PROFITABLE AT ${beSchools} ${beSchools === 1 ? 'SCHOOL' : 'SCHOOLS'}`) +
+    pill(netProfit > 0 ? 'g' : 'r', `${(marginPct*100).toFixed(1)}% NET MARGIN`);
+
+  // Chart
+  renderM2Chart(avgS, rideRevPerU, totalSal);
+
+  // Sensitivity
+  const curU = gv('n-m2-util') / 100;
+  const sRows = [0.4, 0.5, 0.6, 0.7, 0.8].map(u => {
+    const sr2  = unis * avgS;
+    const rr2  = unis * avgStu * spp * u * marg;
+    const tr2  = sr2 + rr2;
+    const net2 = tr2 - totalSal;
+    const m2   = tr2 > 0 ? net2 / tr2 : 0;
+    const cur  = Math.abs(u - curU) < 0.005;
+    return `<tr class="${cur ? 'cur-row' : ''}">
+      <td><span class="ubadge">${(u*100).toFixed(0)}%</span></td>
+      <td>${fmt(sr2)}</td>
+      <td>${fmt(rr2)}</td>
+      <td>${fmt(tr2)}</td>
+      <td class="${net2 > 0 ? 'pos' : 'neg'}">${fmt(net2)}</td>
+      <td class="${m2 > 0.10 ? 'pos' : m2 > 0 ? 'warn' : 'neg'}">${(m2*100).toFixed(1)}%</td>
+    </tr>`;
+  });
+  $('m2-sens').innerHTML = sRows.join('');
+}
+
+function renderM2Chart(saasPerUni, ridePerUni, totalSal) {
+  const maxN = 20;
+  const xs   = Array.from({ length: maxN }, (_, i) => i + 1);
+
+  const saasData = xs.map(n => n * saasPerUni);
+  const rideData = xs.map(n => n * ridePerUni);
+  const costLine = xs.map(() => totalSal);
+
+  const cdata = {
+    labels: xs,
+    datasets: [
+      {
+        type: 'bar',
+        label: 'SaaS Revenue',
+        data: saasData,
+        backgroundColor: 'rgba(0,229,204,.65)',
+        borderColor: 'rgba(0,229,204,1)',
+        borderWidth: 1,
+        stack: 'rev',
+      },
+      {
+        type: 'bar',
+        label: 'Ride Margin',
+        data: rideData,
+        backgroundColor: 'rgba(0,160,140,.55)',
+        borderColor: 'rgba(0,180,160,1)',
+        borderWidth: 1,
+        stack: 'rev',
+      },
+      {
+        type: 'line',
+        label: 'Total Costs',
+        data: costLine,
+        borderColor: 'rgba(255,56,96,.9)',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        borderDash: [5, 4],
+        pointRadius: 0,
+        tension: 0,
+        order: 0,
+      }
+    ]
+  };
+
+  const opts = {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: { duration: 100 },
+    plugins: {
+      legend: {
+        display: true,
+        labels: { color: '#8898b8', font: { family: 'JetBrains Mono', size: 10 }, boxWidth: 10, padding: 14 }
+      },
+      tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.raw)}` } }
+    },
+    scales: {
+      x: {
+        stacked: true,
+        title: { display: true, text: 'Universities', color: '#5a6d8a', font: { size: 10 } },
+        ticks: { color: '#8898b8', font: { family: 'JetBrains Mono', size: 10 } },
+        grid:  { color: 'rgba(28,40,64,.7)' },
+        border:{ color: 'rgba(28,40,64,.8)' },
+      },
+      y: {
+        stacked: false,
+        ticks: { color: '#8898b8', font: { family: 'JetBrains Mono', size: 10 }, callback: v => fmt(v) },
+        grid:  { color: 'rgba(28,40,64,.5)' },
+        border:{ color: 'rgba(28,40,64,.8)' },
+      }
+    }
+  };
+
+  if (ch2) {
+    ch2.data = cdata;
+    ch2.update('none');
+  } else {
+    ch2 = new Chart($('chart-m2').getContext('2d'), { type: 'bar', data: cdata, options: opts });
+  }
+}
+
+// ─── PILL HELPER ──────────────────────────────────────
+function pill(cls, txt) {
+  return `<div class="pill ${cls}"><div class="pill-dot"></div>${txt}</div>`;
+}
+
+// ─── TAB SWITCHING ────────────────────────────────────
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id));
+  document.querySelectorAll('.model-pane').forEach(p => p.classList.toggle('active', p.id === 'pane-' + id));
+}
+
+// ─── DEFAULTS ─────────────────────────────────────────
+const DEFAULTS = {
+  // Model 1
+  'r-m1-stu': 15000, 'n-m1-stu': 15000,
+  'r-m1-spp': 20,    'n-m1-spp': 20,
+  'r-m1-pps': 9,     'n-m1-pps': 9.00,
+  'r-m1-util': 60,   'n-m1-util': 60,
+  'r-m1-ded': 30,    'n-m1-ded': 30,
+  'r-m1-dcost': 8,   'n-m1-dcost': 8.00,
+  'r-m1-ucost': 13,  'n-m1-ucost': 13.00,
+  'r-m1-mult': 1.5,  'n-m1-mult': 1.5,
+  'r-m1-saas': 150000, 'n-m1-saas': 150000,
+  'r-m1-d1': 120000, 'n-m1-d1': 120000,
+  'r-m1-d2': 60000,  'n-m1-d2': 60000,
+  'r-m1-sal': 80000, 'n-m1-sal': 80000,
+  'r-m1-ops': 65000, 'n-m1-ops': 65000,
+  'r-m1-adm': 35000, 'n-m1-adm': 35000,
+  // Model 2
+  'r-m2-unis': 1,    'n-m2-unis': 1,
+  'r-m2-saas': 150000, 'n-m2-saas': 150000,
+  'r-m2-stu': 15000, 'n-m2-stu': 15000,
+  'r-m2-marg': 0.60, 'n-m2-marg': 0.60,
+  'r-m2-spp': 20,    'n-m2-spp': 20,
+  'r-m2-util': 60,   'n-m2-util': 60,
+  'r-m2-d1': 120000, 'n-m2-d1': 120000,
+  'r-m2-d2': 60000,  'n-m2-d2': 60000,
+  'r-m2-sal': 80000, 'n-m2-sal': 80000,
+  'r-m2-ops': 65000, 'n-m2-ops': 65000,
+  'r-m2-adm': 35000, 'n-m2-adm': 35000,
+};
+
+function restoreDefaults() {
+  Object.entries(DEFAULTS).forEach(([id, val]) => {
+    const el = $(id);
+    if (el) el.value = val;
+  });
+  updUber();
+  go1();
+  go2();
+}
+
+// ─── INIT ──────────────────────────────────────────────
+go1();
+go2();
+</script>
+</body>
+</html>
