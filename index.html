@@ -367,9 +367,9 @@ input[type="range"]::-moz-range-thumb {
       <div class="inp-row">
         <div class="inp-lbl"><span class="inp-lbl-text">Students purchasing plans</span></div>
         <div class="inp-ctrl">
-          <input type="range" id="r-m1-stu" min="1000" max="37000" step="500" value="15000"
+          <input type="range" id="r-m1-stu" min="1000" max="37000" step="500" value="3500"
             oninput="rs('r-m1-stu','n-m1-stu',0);go1()">
-          <input type="number" id="n-m1-stu" class="numinput" value="15000"
+          <input type="number" id="n-m1-stu" class="numinput" value="3500"
             oninput="sr('r-m1-stu','n-m1-stu',1000,37000);go1()">
         </div>
       </div>
@@ -387,9 +387,9 @@ input[type="range"]::-moz-range-thumb {
       <div class="inp-row">
         <div class="inp-lbl"><span class="inp-lbl-text">Price per swipe ($)</span></div>
         <div class="inp-ctrl">
-          <input type="range" id="r-m1-pps" min="1" max="25" step="0.25" value="9"
+          <input type="range" id="r-m1-pps" min="1" max="25" step="0.25" value="8.5"
             oninput="rs('r-m1-pps','n-m1-pps',2);go1()">
-          <input type="number" id="n-m1-pps" class="numinput" value="9.00" step="0.25"
+          <input type="number" id="n-m1-pps" class="numinput" value="8.50" step="0.25"
             oninput="sr('r-m1-pps','n-m1-pps',1,25);go1()">
         </div>
       </div>
@@ -467,12 +467,12 @@ input[type="range"]::-moz-range-thumb {
       <div class="inp-row">
         <div class="inp-lbl">
           <span class="inp-lbl-text">Dedicated CU drivers (%)</span>
-          <span class="inp-lbl-hint" id="uber-pct-lbl">Uber/Lyft: 70%</span>
+          <span class="inp-lbl-hint" id="uber-pct-lbl">Uber/Lyft: 60%</span>
         </div>
         <div class="inp-ctrl">
-          <input type="range" id="r-m1-ded" min="0" max="100" step="5" value="30"
+          <input type="range" id="r-m1-ded" min="0" max="100" step="5" value="40"
             oninput="rs('r-m1-ded','n-m1-ded',0);updUber();go1()">
-          <input type="number" id="n-m1-ded" class="numinput" value="30" min="0" max="100"
+          <input type="number" id="n-m1-ded" class="numinput" value="40" min="0" max="100"
             oninput="sr('r-m1-ded','n-m1-ded',0,100);updUber();go1()">
         </div>
       </div>
@@ -491,9 +491,9 @@ input[type="range"]::-moz-range-thumb {
       <div class="inp-row">
         <div class="inp-lbl"><span class="inp-lbl-text">Uber/Lyft cost / ride ($)</span></div>
         <div class="inp-ctrl">
-          <input type="range" id="r-m1-ucost" min="5" max="35" step="0.5" value="13"
+          <input type="range" id="r-m1-ucost" min="5" max="35" step="0.5" value="12"
             oninput="rs('r-m1-ucost','n-m1-ucost',2);go1()">
-          <input type="number" id="n-m1-ucost" class="numinput" value="13.00" step="0.5"
+          <input type="number" id="n-m1-ucost" class="numinput" value="12.00" step="0.5"
             oninput="sr('r-m1-ucost','n-m1-ucost',5,35);go1()">
         </div>
       </div>
@@ -517,9 +517,9 @@ input[type="range"]::-moz-range-thumb {
           <span class="inp-lbl-hint">% of rides to far zones</span>
         </div>
         <div class="inp-ctrl">
-          <input type="range" id="r-m1-zfrac" min="0" max="80" step="1" value="20"
+          <input type="range" id="r-m1-zfrac" min="0" max="80" step="1" value="25"
             oninput="rs('r-m1-zfrac','n-m1-zfrac',0);go1()">
-          <input type="number" id="n-m1-zfrac" class="numinput" value="20"
+          <input type="number" id="n-m1-zfrac" class="numinput" value="25"
             oninput="sr('r-m1-zfrac','n-m1-zfrac',0,80);go1()">
         </div>
       </div>
@@ -540,9 +540,9 @@ input[type="range"]::-moz-range-thumb {
       <div class="inp-row">
         <div class="inp-lbl"><span class="inp-lbl-text">Annual SaaS license — CU pays ($)</span></div>
         <div class="inp-ctrl">
-          <input type="range" id="r-m1-saas" min="25000" max="500000" step="5000" value="150000"
+          <input type="range" id="r-m1-saas" min="25000" max="500000" step="5000" value="100000"
             oninput="rs('r-m1-saas','n-m1-saas',0);go1()">
-          <input type="number" id="n-m1-saas" class="numinput" value="150000"
+          <input type="number" id="n-m1-saas" class="numinput" value="100000"
             oninput="sr('r-m1-saas','n-m1-saas',25000,500000);go1()">
         </div>
       </div>
@@ -825,9 +825,9 @@ input[type="range"]::-moz-range-thumb {
       <div class="inp-row">
         <div class="inp-lbl"><span class="inp-lbl-text">Avg SaaS license / university ($)</span></div>
         <div class="inp-ctrl">
-          <input type="range" id="r-m2-saas" min="25000" max="500000" step="5000" value="150000"
+          <input type="range" id="r-m2-saas" min="25000" max="500000" step="5000" value="100000"
             oninput="rs('r-m2-saas','n-m2-saas',0);go2()">
-          <input type="number" id="n-m2-saas" class="numinput" value="150000"
+          <input type="number" id="n-m2-saas" class="numinput" value="100000"
             oninput="sr('r-m2-saas','n-m2-saas',25000,500000);go2()">
         </div>
       </div>
@@ -835,9 +835,9 @@ input[type="range"]::-moz-range-thumb {
       <div class="inp-row">
         <div class="inp-lbl"><span class="inp-lbl-text">Avg students / university</span></div>
         <div class="inp-ctrl">
-          <input type="range" id="r-m2-stu" min="1000" max="40000" step="500" value="15000"
+          <input type="range" id="r-m2-stu" min="1000" max="40000" step="500" value="3500"
             oninput="rs('r-m2-stu','n-m2-stu',0);go2()">
-          <input type="number" id="n-m2-stu" class="numinput" value="15000"
+          <input type="number" id="n-m2-stu" class="numinput" value="3500"
             oninput="sr('r-m2-stu','n-m2-stu',1000,40000);go2()">
         </div>
       </div>
@@ -1628,21 +1628,27 @@ function switchTab(id) {
 // ─── DEFAULTS ─────────────────────────────────────────
 const DEFAULTS = {
   // Model 1
-  'r-m1-stu': 15000, 'n-m1-stu': 15000,
+  // Students: 15% of CU's ~23,500 off-campus undergrads who go out regularly and will subscribe
+  // Price: $8.50/swipe is the research-backed sweet spot vs $16-22 Uber (sub-$9 psychological anchor)
+  // Ded drivers: 40% own fleet at $8/ride vs 60% Uber at $12/ride; achievable with contracted night fleet
+  // Uber cost: $12 negotiated rate for avg 2.5-mile Boulder ride (down from $13; research: $10-13 range)
+  // SaaS: $100K is mid-range of the researched $75K-$120K defensible for a single university
+  // Outer-zone: 25% of rides go to Table Mesa / Martin Acres (slightly longer, higher cost)
+  'r-m1-stu': 3500,  'n-m1-stu': 3500,
   'r-m1-spp': 20,    'n-m1-spp': 20,
-  'r-m1-pps': 9,     'n-m1-pps': 9.00,
+  'r-m1-pps': 8.5,   'n-m1-pps': 8.50,
   'r-m1-util': 60,   'n-m1-util': 60,
-  'r-m1-ded': 30,    'n-m1-ded': 30,
+  'r-m1-ded': 40,    'n-m1-ded': 40,
   'r-m1-dcost': 8,   'n-m1-dcost': 8.00,
-  'r-m1-ucost': 13,  'n-m1-ucost': 13.00,
+  'r-m1-ucost': 12,  'n-m1-ucost': 12.00,
   'r-m1-mult': 1.5,  'n-m1-mult': 1.5,
-  'r-m1-zfrac': 20,  'n-m1-zfrac': 20,
+  'r-m1-zfrac': 25,  'n-m1-zfrac': 25,
   'r-m1-zmult': 1.4, 'n-m1-zmult': 1.40,
   'r-m1-brate': 25,  'n-m1-brate': 25,
   'r-m1-bspp': 10,   'n-m1-bspp': 10,
   'r-m1-bpps': 9.5,  'n-m1-bpps': 9.50,
   'r-m1-butil': 80,  'n-m1-butil': 80,
-  'r-m1-saas': 150000, 'n-m1-saas': 150000,
+  'r-m1-saas': 100000, 'n-m1-saas': 100000,
   'r-m1-sps': 0.50,   'n-m1-sps': 0.50,
   'r-m1-ccut': 0,     'n-m1-ccut': 0.0,
   'r-m1-ucut': 0,     'n-m1-ucut': 0.0,
@@ -1653,8 +1659,8 @@ const DEFAULTS = {
   'r-m1-adm': 35000, 'n-m1-adm': 35000,
   // Model 2
   'r-m2-unis': 1,    'n-m2-unis': 1,
-  'r-m2-saas': 150000, 'n-m2-saas': 150000,
-  'r-m2-stu': 15000, 'n-m2-stu': 15000,
+  'r-m2-saas': 100000, 'n-m2-saas': 100000,
+  'r-m2-stu': 3500,  'n-m2-stu': 3500,
   'r-m2-marg': 0.60, 'n-m2-marg': 0.60,
   'r-m2-spp': 20,    'n-m2-spp': 20,
   'r-m2-util': 60,   'n-m2-util': 60,
