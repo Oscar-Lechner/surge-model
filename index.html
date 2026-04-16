@@ -332,6 +332,72 @@ input[type="range"]::-moz-range-thumb {
   .pnl-grid, .pnl-wide-inner { grid-template-columns: 1fr; }
   .metrics-row { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ── 5-YEAR TABLE ────────────────────────────────────── */
+.yr-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.yr-tbl th {
+  padding: 6px 10px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  font-size: 9px;
+  text-transform: uppercase;
+  text-align: right;
+}
+.yr-tbl th:first-child { text-align: left; }
+.yr-tbl td {
+  padding: 5px 10px;
+  border-bottom: 1px solid rgba(28,40,64,.35);
+  text-align: right;
+  color: var(--text);
+}
+.yr-tbl td:first-child { text-align: left; color: var(--text-muted); font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; }
+.yr-tbl tr:last-child td { border-bottom: none; }
+.yr-tbl .yr-col-head { background: rgba(0,229,204,.04); color: var(--accent); font-weight: 700; }
+.yr-tbl .pos  { color: var(--green); }
+.yr-tbl .neg  { color: var(--red); }
+.yr-tbl .warn { color: var(--yellow); }
+.yr-tbl .row-sep td { border-top: 1px solid var(--border-hi); }
+.yr-tbl .row-total td { font-weight: 700; color: var(--text); }
+
+/* chart heights for projection tab */
+.proj-chart-wrap { position: relative; height: 240px; }
+.proj-chart-wrap-lg { position: relative; height: 280px; }
+
+/* runway badge */
+.runway-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(255,179,0,.08);
+  border: 1px solid rgba(255,179,0,.3);
+  color: var(--yellow);
+}
+
+/* numinput wide */
+.numinput-wide {
+  width: 96px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 3px 6px;
+  text-align: right;
+  outline: none;
+  transition: border-color .15s;
+}
+.numinput-wide:focus { border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -354,6 +420,7 @@ input[type="range"]::-moz-range-thumb {
 <nav class="tabs">
   <div class="tab active" data-tab="m1" onclick="switchTab('m1')">Model 1 — CU Boulder Beachhead</div>
   <div class="tab" data-tab="m2" onclick="switchTab('m2')">Model 2 — SaaS Scale</div>
+  <div class="tab" data-tab="m3" onclick="switchTab('m3')">5-Year Funding</div>
 </nav>
 
 <!-- ═══════════════════════ MODEL 1 ═══════════════════════ -->
@@ -593,50 +660,50 @@ input[type="range"]::-moz-range-thumb {
       <div class="inp-row">
         <div class="inp-lbl"><span class="inp-lbl-text">Full-stack Dev #1</span></div>
         <div class="inp-ctrl">
-          <input type="range" id="r-m1-d1" min="60000" max="220000" step="5000" value="120000"
+          <input type="range" id="r-m1-d1" min="0" max="220000" step="5000" value="80000"
             oninput="rs('r-m1-d1','n-m1-d1',0);go1()">
-          <input type="number" id="n-m1-d1" class="numinput" value="120000"
-            oninput="sr('r-m1-d1','n-m1-d1',60000,220000);go1()">
+          <input type="number" id="n-m1-d1" class="numinput" value="80000"
+            oninput="sr('r-m1-d1','n-m1-d1',0,220000);go1()">
         </div>
       </div>
 
       <div class="inp-row">
         <div class="inp-lbl"><span class="inp-lbl-text">Dev #2 / Contractor</span></div>
         <div class="inp-ctrl">
-          <input type="range" id="r-m1-d2" min="20000" max="160000" step="5000" value="60000"
+          <input type="range" id="r-m1-d2" min="0" max="160000" step="1000" value="42900"
             oninput="rs('r-m1-d2','n-m1-d2',0);go1()">
-          <input type="number" id="n-m1-d2" class="numinput" value="60000"
-            oninput="sr('r-m1-d2','n-m1-d2',20000,160000);go1()">
+          <input type="number" id="n-m1-d2" class="numinput" value="42900"
+            oninput="sr('r-m1-d2','n-m1-d2',0,160000);go1()">
         </div>
       </div>
 
       <div class="inp-row">
-        <div class="inp-lbl"><span class="inp-lbl-text">Sales / BD</span></div>
+        <div class="inp-lbl"><span class="inp-lbl-text">Sales / BD</span><span class="inp-lbl-hint">0 = not yet hired</span></div>
         <div class="inp-ctrl">
-          <input type="range" id="r-m1-sal" min="40000" max="160000" step="5000" value="80000"
+          <input type="range" id="r-m1-sal" min="0" max="160000" step="5000" value="0"
             oninput="rs('r-m1-sal','n-m1-sal',0);go1()">
-          <input type="number" id="n-m1-sal" class="numinput" value="80000"
-            oninput="sr('r-m1-sal','n-m1-sal',40000,160000);go1()">
+          <input type="number" id="n-m1-sal" class="numinput" value="0"
+            oninput="sr('r-m1-sal','n-m1-sal',0,160000);go1()">
         </div>
       </div>
 
       <div class="inp-row">
         <div class="inp-lbl"><span class="inp-lbl-text">Ops / Customer Success</span></div>
         <div class="inp-ctrl">
-          <input type="range" id="r-m1-ops" min="40000" max="130000" step="5000" value="65000"
+          <input type="range" id="r-m1-ops" min="0" max="130000" step="5000" value="0"
             oninput="rs('r-m1-ops','n-m1-ops',0);go1()">
-          <input type="number" id="n-m1-ops" class="numinput" value="65000"
-            oninput="sr('r-m1-ops','n-m1-ops',40000,130000);go1()">
+          <input type="number" id="n-m1-ops" class="numinput" value="0"
+            oninput="sr('r-m1-ops','n-m1-ops',0,130000);go1()">
         </div>
       </div>
 
       <div class="inp-row">
         <div class="inp-lbl"><span class="inp-lbl-text">Part-time Admin</span></div>
         <div class="inp-ctrl">
-          <input type="range" id="r-m1-adm" min="10000" max="80000" step="2500" value="35000"
+          <input type="range" id="r-m1-adm" min="0" max="80000" step="2500" value="0"
             oninput="rs('r-m1-adm','n-m1-adm',0);go1()">
-          <input type="number" id="n-m1-adm" class="numinput" value="35000"
-            oninput="sr('r-m1-adm','n-m1-adm',10000,80000);go1()">
+          <input type="number" id="n-m1-adm" class="numinput" value="0"
+            oninput="sr('r-m1-adm','n-m1-adm',0,80000);go1()">
         </div>
       </div>
     </div><!-- /headcount -->
@@ -879,50 +946,50 @@ input[type="range"]::-moz-range-thumb {
       <div class="inp-row">
         <div class="inp-lbl"><span class="inp-lbl-text">Full-stack Dev #1</span></div>
         <div class="inp-ctrl">
-          <input type="range" id="r-m2-d1" min="60000" max="220000" step="5000" value="120000"
+          <input type="range" id="r-m2-d1" min="0" max="220000" step="5000" value="80000"
             oninput="rs('r-m2-d1','n-m2-d1',0);go2()">
-          <input type="number" id="n-m2-d1" class="numinput" value="120000"
-            oninput="sr('r-m2-d1','n-m2-d1',60000,220000);go2()">
+          <input type="number" id="n-m2-d1" class="numinput" value="80000"
+            oninput="sr('r-m2-d1','n-m2-d1',0,220000);go2()">
         </div>
       </div>
 
       <div class="inp-row">
         <div class="inp-lbl"><span class="inp-lbl-text">Dev #2 / Contractor</span></div>
         <div class="inp-ctrl">
-          <input type="range" id="r-m2-d2" min="20000" max="160000" step="5000" value="60000"
+          <input type="range" id="r-m2-d2" min="0" max="160000" step="1000" value="47100"
             oninput="rs('r-m2-d2','n-m2-d2',0);go2()">
-          <input type="number" id="n-m2-d2" class="numinput" value="60000"
-            oninput="sr('r-m2-d2','n-m2-d2',20000,160000);go2()">
+          <input type="number" id="n-m2-d2" class="numinput" value="47100"
+            oninput="sr('r-m2-d2','n-m2-d2',0,160000);go2()">
         </div>
       </div>
 
       <div class="inp-row">
-        <div class="inp-lbl"><span class="inp-lbl-text">Sales / BD</span></div>
+        <div class="inp-lbl"><span class="inp-lbl-text">Sales / BD</span><span class="inp-lbl-hint">0 = not yet hired</span></div>
         <div class="inp-ctrl">
-          <input type="range" id="r-m2-sal" min="40000" max="160000" step="5000" value="80000"
+          <input type="range" id="r-m2-sal" min="0" max="160000" step="5000" value="0"
             oninput="rs('r-m2-sal','n-m2-sal',0);go2()">
-          <input type="number" id="n-m2-sal" class="numinput" value="80000"
-            oninput="sr('r-m2-sal','n-m2-sal',40000,160000);go2()">
+          <input type="number" id="n-m2-sal" class="numinput" value="0"
+            oninput="sr('r-m2-sal','n-m2-sal',0,160000);go2()">
         </div>
       </div>
 
       <div class="inp-row">
         <div class="inp-lbl"><span class="inp-lbl-text">Ops / Customer Success</span></div>
         <div class="inp-ctrl">
-          <input type="range" id="r-m2-ops" min="40000" max="130000" step="5000" value="65000"
+          <input type="range" id="r-m2-ops" min="0" max="130000" step="5000" value="0"
             oninput="rs('r-m2-ops','n-m2-ops',0);go2()">
-          <input type="number" id="n-m2-ops" class="numinput" value="65000"
-            oninput="sr('r-m2-ops','n-m2-ops',40000,130000);go2()">
+          <input type="number" id="n-m2-ops" class="numinput" value="0"
+            oninput="sr('r-m2-ops','n-m2-ops',0,130000);go2()">
         </div>
       </div>
 
       <div class="inp-row">
         <div class="inp-lbl"><span class="inp-lbl-text">Part-time Admin</span></div>
         <div class="inp-ctrl">
-          <input type="range" id="r-m2-adm" min="10000" max="80000" step="2500" value="35000"
+          <input type="range" id="r-m2-adm" min="0" max="80000" step="2500" value="0"
             oninput="rs('r-m2-adm','n-m2-adm',0);go2()">
-          <input type="number" id="n-m2-adm" class="numinput" value="35000"
-            oninput="sr('r-m2-adm','n-m2-adm',10000,80000);go2()">
+          <input type="number" id="n-m2-adm" class="numinput" value="0"
+            oninput="sr('r-m2-adm','n-m2-adm',0,80000);go2()">
         </div>
       </div>
     </div><!-- /headcount m2 -->
@@ -1034,6 +1101,257 @@ input[type="range"]::-moz-range-thumb {
 
   </div><!-- /outputs m2 -->
 </div><!-- /pane-m2 -->
+
+
+<!-- ═══════════════════════ MODEL 3 — 5-YEAR FUNDING ═══════════════════════ -->
+<div class="model-pane" id="pane-m3">
+
+  <div class="inputs-panel">
+
+    <div class="inp-section">
+      <div class="inp-section-label">Funding Structure</div>
+
+      <div class="inp-row">
+        <div class="inp-lbl">
+          <span class="inp-lbl-text">Founder seed cash ($)</span>
+          <span class="inp-lbl-hint">cash at startup</span>
+        </div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m3-seed" min="0" max="100000" step="1000" value="10000"
+            oninput="rs('r-m3-seed','n-m3-seed',0);go3()">
+          <input type="number" id="n-m3-seed" class="numinput" value="10000"
+            oninput="sr('r-m3-seed','n-m3-seed',0,100000);go3()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl">
+          <span class="inp-lbl-text">Pre-launch expenses ($)</span>
+          <span class="inp-lbl-hint">reduces starting cash</span>
+        </div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m3-preexp" min="0" max="50000" step="500" value="4000"
+            oninput="rs('r-m3-preexp','n-m3-preexp',0);go3()">
+          <input type="number" id="n-m3-preexp" class="numinput" value="4000"
+            oninput="sr('r-m3-preexp','n-m3-preexp',0,50000);go3()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl">
+          <span class="inp-lbl-text">Y1 equity raise — Shark Tank ($)</span>
+          <span class="inp-lbl-hint">brings total equity to $100K</span>
+        </div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m3-eq1" min="0" max="500000" step="5000" value="90000"
+            oninput="rs('r-m3-eq1','n-m3-eq1',0);go3()">
+          <input type="number" id="n-m3-eq1" class="numinput" value="90000"
+            oninput="sr('r-m3-eq1','n-m3-eq1',0,500000);go3()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl">
+          <span class="inp-lbl-text">Y2-5 equity / year ($)</span>
+          <span class="inp-lbl-hint">A/B round or follow-on</span>
+        </div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m3-eqr" min="0" max="500000" step="5000" value="0"
+            oninput="rs('r-m3-eqr','n-m3-eqr',0);go3()">
+          <input type="number" id="n-m3-eqr" class="numinput" value="0"
+            oninput="sr('r-m3-eqr','n-m3-eqr',0,500000);go3()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl">
+          <span class="inp-lbl-text">Cash interest rate (%)</span>
+          <span class="inp-lbl-hint">earned on idle cash</span>
+        </div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m3-int" min="0" max="10" step="0.5" value="0"
+            oninput="rs('r-m3-int','n-m3-int',1);go3()">
+          <input type="number" id="n-m3-int" class="numinput" value="0" step="0.5"
+            oninput="sr('r-m3-int','n-m3-int',0,10);go3()">
+        </div>
+      </div>
+    </div><!-- /funding -->
+
+    <div class="inp-section">
+      <div class="inp-section-label">Surge Net Income — by Year</div>
+      <div class="deriv-note" style="margin-bottom:8px;">Adjust each year's operating net. Defaults match the financial model.</div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Year 1 net income ($)</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m3-ni1" min="-300000" max="200000" step="100" value="-1900"
+            oninput="rs('r-m3-ni1','n-m3-ni1',0);go3()">
+          <input type="number" id="n-m3-ni1" class="numinput-wide" value="-1900"
+            oninput="sr('r-m3-ni1','n-m3-ni1',-300000,200000);go3()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Year 2 net income ($)</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m3-ni2" min="-300000" max="500000" step="100" value="-32900"
+            oninput="rs('r-m3-ni2','n-m3-ni2',0);go3()">
+          <input type="number" id="n-m3-ni2" class="numinput-wide" value="-32900"
+            oninput="sr('r-m3-ni2','n-m3-ni2',-300000,500000);go3()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Year 3 net income ($)</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m3-ni3" min="0" max="2000000" step="1000" value="499633"
+            oninput="rs('r-m3-ni3','n-m3-ni3',0);go3()">
+          <input type="number" id="n-m3-ni3" class="numinput-wide" value="499633"
+            oninput="sr('r-m3-ni3','n-m3-ni3',0,2000000);go3()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Year 4 net income ($)</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m3-ni4" min="0" max="5000000" step="1000" value="1764963"
+            oninput="rs('r-m3-ni4','n-m3-ni4',0);go3()">
+          <input type="number" id="n-m3-ni4" class="numinput-wide" value="1764963"
+            oninput="sr('r-m3-ni4','n-m3-ni4',0,5000000);go3()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Year 5 net income ($)</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m3-ni5" min="0" max="10000000" step="1000" value="4302053"
+            oninput="rs('r-m3-ni5','n-m3-ni5',0);go3()">
+          <input type="number" id="n-m3-ni5" class="numinput-wide" value="4302053"
+            oninput="sr('r-m3-ni5','n-m3-ni5',0,10000000);go3()">
+        </div>
+      </div>
+    </div><!-- /net income -->
+
+    <div class="inp-section">
+      <div class="inp-section-label">Dividend Policy</div>
+
+      <div class="inp-row">
+        <div class="inp-lbl">
+          <span class="inp-lbl-text">Y3 dividend ($)</span>
+          <span class="inp-lbl-hint">first profitable year</span>
+        </div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m3-div3" min="0" max="500000" step="5000" value="100000"
+            oninput="rs('r-m3-div3','n-m3-div3',0);go3()">
+          <input type="number" id="n-m3-div3" class="numinput-wide" value="100000"
+            oninput="sr('r-m3-div3','n-m3-div3',0,500000);go3()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Y4 dividend ($)</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m3-div4" min="0" max="1000000" step="5000" value="150000"
+            oninput="rs('r-m3-div4','n-m3-div4',0);go3()">
+          <input type="number" id="n-m3-div4" class="numinput-wide" value="150000"
+            oninput="sr('r-m3-div4','n-m3-div4',0,1000000);go3()">
+        </div>
+      </div>
+
+      <div class="inp-row">
+        <div class="inp-lbl"><span class="inp-lbl-text">Y5 dividend ($)</span></div>
+        <div class="inp-ctrl">
+          <input type="range" id="r-m3-div5" min="0" max="2000000" step="10000" value="300000"
+            oninput="rs('r-m3-div5','n-m3-div5',0);go3()">
+          <input type="number" id="n-m3-div5" class="numinput-wide" value="300000"
+            oninput="sr('r-m3-div5','n-m3-div5',0,2000000);go3()">
+        </div>
+      </div>
+    </div><!-- /dividends -->
+
+  </div><!-- /inputs m3 -->
+
+  <!-- ── OUTPUTS M3 ── -->
+  <div class="outputs-panel">
+
+    <div class="status-row" id="m3-status"></div>
+
+    <div class="metrics-row">
+      <div class="mcard">
+        <div class="mcard-lbl">Total Equity Raised</div>
+        <div class="mcard-val" id="m3-total-eq">—</div>
+        <div class="mcard-sub">founder + investors</div>
+      </div>
+      <div class="mcard">
+        <div class="mcard-lbl">Y5 Cash Position</div>
+        <div class="mcard-val pos" id="m3-cash5">—</div>
+        <div class="mcard-sub">end of year 5</div>
+      </div>
+      <div class="mcard">
+        <div class="mcard-lbl">Y5 Retained Earnings</div>
+        <div class="mcard-val" id="m3-re5">—</div>
+        <div class="mcard-sub">cumulative profit kept</div>
+      </div>
+      <div class="mcard">
+        <div class="mcard-lbl">Total Dividends Paid</div>
+        <div class="mcard-val" id="m3-divs">—</div>
+        <div class="mcard-sub">Y3 – Y5</div>
+      </div>
+      <div class="mcard">
+        <div class="mcard-lbl">Profitability Year</div>
+        <div class="mcard-val" id="m3-profit-yr">—</div>
+        <div class="mcard-sub">first year net &gt; 0</div>
+      </div>
+      <div class="mcard">
+        <div class="mcard-lbl">5-Yr Investor IRR</div>
+        <div class="mcard-val" id="m3-irr">—</div>
+        <div class="mcard-sub" id="m3-irr-sub">on Shark Tank equity + Y5 RE</div>
+      </div>
+    </div>
+
+    <!-- 5-year P&L table -->
+    <div class="chart-section">
+      <div class="sec-title">5-Year Funding Model — P&amp;L &amp; Cash Flow</div>
+      <table class="yr-tbl">
+        <thead>
+          <tr>
+            <th></th>
+            <th class="yr-col-head">Startup</th>
+            <th class="yr-col-head">Year 1</th>
+            <th class="yr-col-head">Year 2</th>
+            <th class="yr-col-head">Year 3</th>
+            <th class="yr-col-head">Year 4</th>
+            <th class="yr-col-head">Year 5</th>
+          </tr>
+        </thead>
+        <tbody id="m3-yr-tbl"></tbody>
+      </table>
+    </div>
+
+    <div class="pnl-grid">
+      <div class="chart-section">
+        <div class="sec-title">Net Income Progression (Y1–Y5)</div>
+        <div class="proj-chart-wrap"><canvas id="chart-m3-net"></canvas></div>
+      </div>
+      <div class="chart-section">
+        <div class="sec-title">Cash Position Over Time</div>
+        <div class="proj-chart-wrap"><canvas id="chart-m3-cash"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="sec-title">Equity Raised vs Retained Earnings vs Dividends Paid</div>
+      <div class="proj-chart-wrap-lg"><canvas id="chart-m3-funding"></canvas></div>
+    </div>
+
+    <div class="chart-section">
+      <div class="sec-title">Cumulative Retained Earnings &amp; Annual Dividend Payout</div>
+      <div class="proj-chart-wrap"><canvas id="chart-m3-re"></canvas></div>
+    </div>
+
+  </div><!-- /outputs m3 -->
+</div><!-- /pane-m3 -->
+
 
 <!-- ═══════════════════ JAVASCRIPT ═══════════════════════ -->
 <script>
@@ -1614,6 +1932,279 @@ function renderM2Sankey(saasRev, rideRev, d1, d2, sal, ops, adm, netProfit) {
   sk2 = new Chart($('sankey-m2').getContext('2d'), { type: 'sankey', data: { datasets: [dataset] }, options: SANKEY_OPTS });
 }
 
+// ─── MODEL 3 — 5-YEAR FUNDING ─────────────────────────
+let ch3net = null, ch3cash = null, ch3fund = null, ch3re = null;
+
+function go3() {
+  const seed    = gv('n-m3-seed');    // total founder contribution (equity base)
+  const preExp  = gv('n-m3-preexp'); // pre-launch expenses reduce starting cash
+  const eq1     = gv('n-m3-eq1');
+  const eqr     = gv('n-m3-eqr');
+  const intR    = gv('n-m3-int') / 100;
+  const ni      = [0, gv('n-m3-ni1'), gv('n-m3-ni2'), gv('n-m3-ni3'), gv('n-m3-ni4'), gv('n-m3-ni5')];
+  const divs    = [0, 0, 0, gv('n-m3-div3'), gv('n-m3-div4'), gv('n-m3-div5')];
+  const eqs     = [0, eq1, eqr, eqr, eqr, eqr];
+
+  // Cap dividends to net income for that year
+  for (let y = 1; y <= 5; y++) {
+    if (ni[y] > 0) divs[y] = Math.min(divs[y], ni[y]);
+    else divs[y] = 0;
+  }
+
+  // cash[0] = starting cash after pre-launch spend; re[0] = full founding equity
+  const cash = new Array(6).fill(0);
+  const re   = new Array(6).fill(0);
+  cash[0] = seed - preExp;
+  re[0]   = seed;
+
+  for (let y = 1; y <= 5; y++) {
+    const interest = cash[y - 1] * intR;
+    cash[y] = cash[y - 1] + eqs[y] + ni[y] - divs[y] + interest;
+    re[y]   = re[y - 1] + (ni[y] - divs[y]);
+  }
+
+  // Totals
+  const totalEq    = seed + eq1 + eqr * 4;
+  const totalDivs  = divs[3] + divs[4] + divs[5];
+  const re5        = re[5];
+  const profitYr   = ni.findIndex((v, i) => i > 0 && v > 0);
+
+  // Investor IRR (Newton-Raphson on NPV=0)
+  // Cash flows for Shark Tank: invest eq1 at t=0, receive dividends at t=3,4,5 + terminal value at t=5
+  // Terminal value approximation: re5 (all retained earnings belong to equity holders)
+  const irrCFs = [-eq1, 0, 0, divs[3], divs[4], divs[5] + Math.max(0, re5)];
+  const irr = calcIRR(irrCFs);
+
+  // ── DOM updates ──────────────────────────────────────
+  setV('m3-total-eq', fmt(totalEq));
+  const c5El = $('m3-cash5');
+  c5El.textContent = fmt(cash[5]);
+  c5El.className = 'mcard-val ' + (cash[5] > 0 ? 'pos' : 'neg');
+  const re5El = $('m3-re5');
+  re5El.textContent = fmt(re5);
+  re5El.className = 'mcard-val ' + (re5 > 0 ? 'pos' : 'neg');
+  setV('m3-divs', fmt(totalDivs));
+  const pyrEl = $('m3-profit-yr');
+  pyrEl.textContent = profitYr > 0 ? `Year ${profitYr}` : 'Never';
+  pyrEl.className = 'mcard-val ' + (profitYr > 0 && profitYr <= 3 ? 'pos' : profitYr > 3 ? 'warn' : 'neg');
+  const irrEl = $('m3-irr');
+  if (eq1 <= 0) { irrEl.textContent = 'N/A'; irrEl.className = 'mcard-val'; }
+  else if (irr === null) { irrEl.textContent = '—'; irrEl.className = 'mcard-val warn'; }
+  else { irrEl.textContent = (irr * 100).toFixed(1) + '%'; irrEl.className = 'mcard-val ' + (irr > 0.20 ? 'pos' : irr > 0 ? 'warn' : 'neg'); }
+
+  // Status banner
+  const cashOk  = cash.slice(1).every(c => c >= 0);
+  const stCls   = cashOk && re5 > 0 ? 'g' : !cashOk ? 'r' : 'y';
+  $('m3-status').innerHTML =
+    pill(stCls, cashOk ? 'CASH POSITIVE ALL 5 YEARS' : 'CASH DEFICIT — CHECK EQUITY RAISE') +
+    pill(profitYr > 0 ? 'g' : 'r', profitYr > 0 ? `PROFITABLE YEAR ${profitYr}` : 'NEVER PROFITABLE') +
+    pill(re5 > 0 ? 'g' : 'r', `Y5 RETAINED: ${fmt(re5)}`);
+
+  // Build 5-year P&L table
+  const rows = [
+    { label: 'Common Equity',     vals: [fmt(seed), fmt(seed + eq1), ...Array.from({length:4},(_,i)=>fmt(seed+eq1+eqr*(i+1)))] },
+    { label: '↳ New Equity Raise',vals: [fmt(-preExp), fmt(eq1), fmt(eqr), fmt(eqr), fmt(eqr), fmt(eqr)], cls:'text-dim' },
+    { label: 'Net Income',        vals: ['—', ...ni.slice(1).map((v,i) => v)], netIncome: true },
+    { label: 'Dividends',         vals: ['—', ...divs.slice(1).map(v => v > 0 ? fmt(v) : '—')], divRow: true },
+    { label: 'Retained Δ',        vals: ['—', ...ni.slice(1).map((v,i) => v - divs[i+1])], deltaRow: true },
+    { label: 'Retained Earnings', vals: re.map(v => v), reRow: true },
+    { label: 'Cash (Beginning)',  vals: [fmt(seed), fmt(cash[0]), ...cash.slice(1,5).map(v=>fmt(v))], sep: true },
+    { label: 'Cash (Ending)',     vals: ['—', ...cash.slice(1).map(v=>fmt(v))], cashRow: true },
+  ];
+
+  $('m3-yr-tbl').innerHTML = rows.map(r => {
+    let cells;
+    if (r.netIncome) {
+      cells = r.vals.map((v, i) => {
+        if (i === 0) return `<td>—</td>`;
+        const n = ni[i];
+        return `<td class="${n > 0 ? 'pos' : n < 0 ? 'neg' : ''}">${fmt(n)}</td>`;
+      });
+    } else if (r.deltaRow) {
+      cells = r.vals.map((v, i) => {
+        if (i === 0) return `<td>—</td>`;
+        const n = ni[i] - divs[i];
+        return `<td class="${n > 0 ? 'pos' : n < 0 ? 'neg' : ''}">${fmt(n)}</td>`;
+      });
+    } else if (r.reRow) {
+      cells = r.vals.map((v, i) => `<td class="${v > 0 ? 'pos' : v < 0 ? 'neg' : ''}">${fmt(v)}</td>`);
+    } else if (r.cashRow) {
+      cells = [
+        `<td>—</td>`,
+        ...cash.slice(1).map(v => `<td class="${v > 0 ? 'pos' : 'neg'}">${fmt(v)}</td>`)
+      ];
+    } else {
+      cells = r.vals.map(v => `<td>${typeof v === 'number' ? fmt(v) : v}</td>`);
+    }
+    const sepCls = r.sep ? ' row-sep' : '';
+    return `<tr class="${sepCls}"><td>${r.label}</td>${cells.join('')}</tr>`;
+  }).join('');
+
+  // Charts
+  renderM3NetChart(ni.slice(1));
+  renderM3CashChart(cash);
+  renderM3FundingChart(seed, eq1, eqr, re, divs);
+  renderM3REChart(re, divs);
+}
+
+// ── IRR calculator (Newton-Raphson) ───────────────────
+function calcIRR(cfs, guess = 0.1, maxIter = 200, tol = 1e-6) {
+  let r = guess;
+  for (let i = 0; i < maxIter; i++) {
+    let npv = 0, dndv = 0;
+    for (let t = 0; t < cfs.length; t++) {
+      npv  +=  cfs[t] / Math.pow(1 + r, t);
+      dndv += -t * cfs[t] / Math.pow(1 + r, t + 1);
+    }
+    if (Math.abs(dndv) < 1e-12) return null;
+    const nr = r - npv / dndv;
+    if (Math.abs(nr - r) < tol) return nr;
+    r = nr;
+  }
+  return null;
+}
+
+// ── Chart: Net Income Bars ─────────────────────────────
+function renderM3NetChart(niArr) {
+  const labels = ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'];
+  const colors = niArr.map(v => v >= 0 ? 'rgba(0,212,138,.75)' : 'rgba(255,56,96,.75)');
+  const borders = niArr.map(v => v >= 0 ? 'rgba(0,212,138,1)' : 'rgba(255,56,96,1)');
+  const cfg = {
+    type: 'bar',
+    data: { labels, datasets: [{ data: niArr, backgroundColor: colors, borderColor: borders, borderWidth: 1 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: { duration: 100 },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } },
+        annotation: {
+          annotations: { zeroline: { type: 'line', yMin: 0, yMax: 0, borderColor: 'rgba(255,255,255,.15)', borderWidth: 1 } }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#8898b8', font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: 'rgba(28,40,64,.7)' }, border: { color: 'rgba(28,40,64,.8)' } },
+        y: { ticks: { color: '#8898b8', font: { family: 'JetBrains Mono', size: 10 }, callback: v => fmt(v) }, grid: { color: 'rgba(28,40,64,.5)' }, border: { color: 'rgba(28,40,64,.8)' } }
+      }
+    }
+  };
+  if (ch3net) { ch3net.data.datasets[0].data = niArr; ch3net.data.datasets[0].backgroundColor = colors; ch3net.data.datasets[0].borderColor = borders; ch3net.update('none'); }
+  else ch3net = new Chart($('chart-m3-net').getContext('2d'), cfg);
+}
+
+// ── Chart: Cash Position Area ─────────────────────────
+function renderM3CashChart(cash) {
+  const labels = ['Startup', 'Y1', 'Y2', 'Y3', 'Y4', 'Y5'];
+  const cfg = {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Cash',
+        data: cash,
+        borderColor: 'rgba(0,229,204,1)',
+        backgroundColor: 'rgba(0,229,204,.12)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.35,
+        pointRadius: 4,
+        pointBackgroundColor: cash.map(v => v >= 0 ? 'rgba(0,229,204,1)' : 'rgba(255,56,96,1)'),
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: { duration: 100 },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } }
+      },
+      scales: {
+        x: { ticks: { color: '#8898b8', font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: 'rgba(28,40,64,.7)' }, border: { color: 'rgba(28,40,64,.8)' } },
+        y: { ticks: { color: '#8898b8', font: { family: 'JetBrains Mono', size: 10 }, callback: v => fmt(v) }, grid: { color: 'rgba(28,40,64,.5)' }, border: { color: 'rgba(28,40,64,.8)' } }
+      }
+    }
+  };
+  if (ch3cash) { ch3cash.data.datasets[0].data = cash; ch3cash.data.datasets[0].pointBackgroundColor = cash.map(v => v >= 0 ? 'rgba(0,229,204,1)' : 'rgba(255,56,96,1)'); ch3cash.update('none'); }
+  else ch3cash = new Chart($('chart-m3-cash').getContext('2d'), cfg);
+}
+
+// ── Chart: Funding Sources Stacked ────────────────────
+function renderM3FundingChart(seed, eq1, eqr, re, divs) {
+  const labels = ['Startup', 'Y1', 'Y2', 'Y3', 'Y4', 'Y5'];
+  const eqData  = [seed, seed + eq1, seed + eq1 + eqr, seed + eq1 + eqr*2, seed + eq1 + eqr*3, seed + eq1 + eqr*4];
+  const reData  = re.map(v => Math.max(0, v));
+  const divData = [0, 0, 0, divs[3], divs[3]+divs[4], divs[3]+divs[4]+divs[5]];
+
+  const datasets = [
+    { label: 'Cumul. Equity Raised', data: eqData, backgroundColor: 'rgba(88,120,208,.7)', borderColor: 'rgba(88,120,208,1)', borderWidth: 1, stack: 's' },
+    { label: 'Retained Earnings',    data: reData,  backgroundColor: 'rgba(0,196,122,.65)', borderColor: 'rgba(0,196,122,1)', borderWidth: 1, stack: 's' },
+    { label: 'Cumul. Dividends Paid',data: divData, backgroundColor: 'rgba(255,179,0,.55)', borderColor: 'rgba(255,179,0,1)', borderWidth: 1, stack: 'd' },
+  ];
+
+  const opts = {
+    responsive: true, maintainAspectRatio: false, animation: { duration: 100 },
+    plugins: {
+      legend: { display: true, labels: { color: '#8898b8', font: { family: 'JetBrains Mono', size: 10 }, boxWidth: 10, padding: 14 } },
+      tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.raw)}` } }
+    },
+    scales: {
+      x: { stacked: true, ticks: { color: '#8898b8', font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: 'rgba(28,40,64,.7)' }, border: { color: 'rgba(28,40,64,.8)' } },
+      y: { stacked: true, ticks: { color: '#8898b8', font: { family: 'JetBrains Mono', size: 10 }, callback: v => fmt(v) }, grid: { color: 'rgba(28,40,64,.5)' }, border: { color: 'rgba(28,40,64,.8)' } }
+    }
+  };
+
+  if (ch3fund) { ch3fund.data.datasets[0].data = eqData; ch3fund.data.datasets[1].data = reData; ch3fund.data.datasets[2].data = divData; ch3fund.update('none'); }
+  else ch3fund = new Chart($('chart-m3-funding').getContext('2d'), { type: 'bar', data: { labels, datasets }, options: opts });
+}
+
+// ── Chart: Retained Earnings + Dividend line ──────────
+function renderM3REChart(re, divs) {
+  const labels = ['Startup', 'Y1', 'Y2', 'Y3', 'Y4', 'Y5'];
+  const divArr = [0, divs[1], divs[2], divs[3], divs[4], divs[5]];
+
+  const cfg = {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Retained Earnings',
+          data: re,
+          backgroundColor: re.map(v => v >= 0 ? 'rgba(0,196,122,.65)' : 'rgba(255,56,96,.55)'),
+          borderColor:      re.map(v => v >= 0 ? 'rgba(0,196,122,1)' : 'rgba(255,56,96,1)'),
+          borderWidth: 1,
+          yAxisID: 'y',
+        },
+        {
+          type: 'line',
+          label: 'Annual Dividend',
+          data: divArr,
+          borderColor: 'rgba(255,179,0,.9)',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 4,
+          pointBackgroundColor: 'rgba(255,179,0,1)',
+          tension: 0.3,
+          yAxisID: 'y2',
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: { duration: 100 },
+      plugins: {
+        legend: { display: true, labels: { color: '#8898b8', font: { family: 'JetBrains Mono', size: 10 }, boxWidth: 10, padding: 14 } },
+        tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.raw)}` } }
+      },
+      scales: {
+        x: { ticks: { color: '#8898b8', font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: 'rgba(28,40,64,.7)' }, border: { color: 'rgba(28,40,64,.8)' } },
+        y: { position: 'left', ticks: { color: '#8898b8', font: { family: 'JetBrains Mono', size: 10 }, callback: v => fmt(v) }, grid: { color: 'rgba(28,40,64,.5)' }, border: { color: 'rgba(28,40,64,.8)' } },
+        y2: { position: 'right', ticks: { color: 'rgba(255,179,0,.7)', font: { family: 'JetBrains Mono', size: 10 }, callback: v => fmt(v) }, grid: { drawOnChartArea: false }, border: { color: 'rgba(28,40,64,.8)' } }
+      }
+    }
+  };
+  if (ch3re) { ch3re.data.datasets[0].data = re; ch3re.data.datasets[0].backgroundColor = re.map(v => v>=0?'rgba(0,196,122,.65)':'rgba(255,56,96,.55)'); ch3re.data.datasets[0].borderColor = re.map(v => v>=0?'rgba(0,196,122,1)':'rgba(255,56,96,1)'); ch3re.data.datasets[1].data = divArr; ch3re.update('none'); }
+  else ch3re = new Chart($('chart-m3-re').getContext('2d'), cfg);
+}
+
 // ─── PILL HELPER ──────────────────────────────────────
 function pill(cls, txt) {
   return `<div class="pill ${cls}"><div class="pill-dot"></div>${txt}</div>`;
@@ -1652,11 +2243,12 @@ const DEFAULTS = {
   'r-m1-sps': 0.50,   'n-m1-sps': 0.50,
   'r-m1-ccut': 0,     'n-m1-ccut': 0.0,
   'r-m1-ucut': 0,     'n-m1-ucut': 0.0,
-  'r-m1-d1': 120000, 'n-m1-d1': 120000,
-  'r-m1-d2': 60000,  'n-m1-d2': 60000,
-  'r-m1-sal': 80000, 'n-m1-sal': 80000,
-  'r-m1-ops': 65000, 'n-m1-ops': 65000,
-  'r-m1-adm': 35000, 'n-m1-adm': 35000,
+  // Year 1 lean team: 2 founders → Surge net ≈ −$1,900 (matches funding model Y1)
+  'r-m1-d1': 80000,  'n-m1-d1': 80000,
+  'r-m1-d2': 42900,  'n-m1-d2': 42900,
+  'r-m1-sal': 0,     'n-m1-sal': 0,
+  'r-m1-ops': 0,     'n-m1-ops': 0,
+  'r-m1-adm': 0,     'n-m1-adm': 0,
   // Model 2
   'r-m2-unis': 1,    'n-m2-unis': 1,
   'r-m2-saas': 100000, 'n-m2-saas': 100000,
@@ -1664,11 +2256,26 @@ const DEFAULTS = {
   'r-m2-marg': 0.60, 'n-m2-marg': 0.60,
   'r-m2-spp': 20,    'n-m2-spp': 20,
   'r-m2-util': 60,   'n-m2-util': 60,
-  'r-m2-d1': 120000, 'n-m2-d1': 120000,
-  'r-m2-d2': 60000,  'n-m2-d2': 60000,
-  'r-m2-sal': 80000, 'n-m2-sal': 80000,
-  'r-m2-ops': 65000, 'n-m2-ops': 65000,
-  'r-m2-adm': 35000, 'n-m2-adm': 35000,
+  // Year 1 lean team: 2 founders → Surge net ≈ −$1,900 (matches funding model Y1)
+  'r-m2-d1': 80000,  'n-m2-d1': 80000,
+  'r-m2-d2': 47100,  'n-m2-d2': 47100,
+  'r-m2-sal': 0,     'n-m2-sal': 0,
+  'r-m2-ops': 0,     'n-m2-ops': 0,
+  'r-m2-adm': 0,     'n-m2-adm': 0,
+  // Model 3 — 5-Year Funding (from financial model spreadsheet)
+  'r-m3-seed':   10000, 'n-m3-seed':   10000,
+  'r-m3-preexp': 4000,  'n-m3-preexp': 4000,
+  'r-m3-eq1':    90000, 'n-m3-eq1':    90000,
+  'r-m3-eqr':    0,     'n-m3-eqr':    0,
+  'r-m3-int':    0,     'n-m3-int':    0,
+  'r-m3-ni1':  -1900,    'n-m3-ni1':  -1900,
+  'r-m3-ni2':  -32900,   'n-m3-ni2':  -32900,
+  'r-m3-ni3':  499633,   'n-m3-ni3':  499633,
+  'r-m3-ni4':  1764963,  'n-m3-ni4':  1764963,
+  'r-m3-ni5':  4302053,  'n-m3-ni5':  4302053,
+  'r-m3-div3': 100000, 'n-m3-div3': 100000,
+  'r-m3-div4': 150000, 'n-m3-div4': 150000,
+  'r-m3-div5': 300000, 'n-m3-div5': 300000,
 };
 
 function restoreDefaults() {
@@ -1679,6 +2286,7 @@ function restoreDefaults() {
   updUber();
   go1();
   go2();
+  go3();
 }
 
 // ─── SHARED PARAMETER SYNC ────────────────────────────
@@ -1709,6 +2317,7 @@ SHARED_KEYS.forEach(key => {
 // ─── INIT ──────────────────────────────────────────────
 go1();
 go2();
+go3();
 </script>
 </body>
 </html>

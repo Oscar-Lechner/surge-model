@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(gh api:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(start \"\" \"h:/Repositories/surge model/index.html\")"
     ]
   }
 }
